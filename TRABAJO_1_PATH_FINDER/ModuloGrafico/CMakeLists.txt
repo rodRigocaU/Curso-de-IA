@@ -13,7 +13,10 @@ file(GLOB SOURCES
     include/*.h
 )
 
-include_directories(include data)
+include_directories(include)
+
+file(GLOB DATADIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
+file(COPY ${DATADIR} DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
