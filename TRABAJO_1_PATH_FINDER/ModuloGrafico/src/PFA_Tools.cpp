@@ -18,6 +18,7 @@ bool readData(const std::string& filename, std::vector<AlgorithmState>& playlist
     }
     playlist.push_back(new_state);
     source_file.close();
+    std::cout << "\nFile " << filename << " done.\n";
     remove(filename.c_str());//comentar si no quieres que los archivos se eliminen luego de su uso
     return true;
   }
@@ -73,10 +74,11 @@ void drawCell(sf::RenderWindow& window, const uint32_t& x, const uint32_t& y, co
   window.draw(cell_d);
 }
 
-void drawGrid(sf::RenderWindow& window, AlgorithmState& algstate){
-  for(std::size_t x = 0; x < algstate.size(); ++x){
-    for(std::size_t y = 0; y < algstate[x].size(); ++y){
-      drawCell(window, x, y, algstate[x][y]);
+void drawGrid(sf::RenderWindow& window, std::vector<AlgorithmState>& playlist){
+  AlgorithmState* algstate = &playlist[algstate_idx];
+  for(std::size_t x = 0; x < algstate->size(); ++x){
+    for(std::size_t y = 0; y < (*algstate)[x].size(); ++y){
+      drawCell(window, x, y, (*algstate)[x][y]);
     }
   }
 }

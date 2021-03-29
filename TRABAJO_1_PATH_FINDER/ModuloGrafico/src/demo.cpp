@@ -21,15 +21,15 @@ int main(){
         window.close();
       if(action.type == sf::Event::KeyPressed){
         onViewModeControl();
+        onPlaylistControl(playlist);
       }
     }
     onCameraControl(camera2d);
-    onPlaylistControl(playlist);
     window.clear(sf::Color::White);
 
     window.setView(camera2d);
 
-    drawGrid(window, playlist[algstate_idx]);
+    drawGrid(window, playlist);
 
     window.display();
   }

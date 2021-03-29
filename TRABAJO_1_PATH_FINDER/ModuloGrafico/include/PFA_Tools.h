@@ -2,7 +2,11 @@
 #define PFA_TOOLS_H_
 
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <SFML/Graphics.hpp>
 #include <string>
+
 #include "Settings.h"
 
 static uint8_t view_mode;
@@ -16,7 +20,7 @@ void readPlaylist(std::vector<AlgorithmState>& playlist);
 
 void drawCell(sf::RenderWindow& window, const uint32_t& x, const uint32_t& y, const char& cell);
 
-void drawGrid(sf::RenderWindow& window, AlgorithmState& algstate);
+void drawGrid(sf::RenderWindow& window, std::vector<AlgorithmState>& playlist);
 
 void onCameraControl(sf::View& camera);
 

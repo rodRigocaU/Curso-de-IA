@@ -1,10 +1,6 @@
 #ifndef SETTINGS_H_
 #define SETTINGS_H_
 
-#include <fstream>
-#include <iostream>
-#include <SFML/Graphics.hpp>
-
 #define WINDOW_SIZE_W     660
 #define WINDOW_SIZE_H     680
 #define WINDOW_TITLE      "Path Finder Algorithms"
