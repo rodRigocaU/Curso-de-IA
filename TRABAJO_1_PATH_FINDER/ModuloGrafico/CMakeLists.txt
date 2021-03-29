@@ -18,6 +18,9 @@ include_directories(include)
 file(GLOB DATADIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 file(COPY ${DATADIR} DESTINATION ${CMAKE_BINARY_DIR})
 
+file(GLOB DATADIR "${CMAKE_CURRENT_SOURCE_DIR}/data/*.txt")
+file(COPY ${DATADIR} DESTINATION "${CMAKE_BINARY_DIR}/data")
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 if (SFML_FOUND)
