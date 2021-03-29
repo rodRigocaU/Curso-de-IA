@@ -11,13 +11,13 @@
 
 #define CELL_SIZE         15
 
-#define CELL_BEGIN        1
-#define CELL_END          2
-#define CELL_ST_VISITED   3
-#define CELL_ST_NVISITED  4
-#define CELL_WRONG_WAY    5//cells out of the result path
-#define CELL_GOOD_WAY     6//cells in the result path
-#define CELL_BLOCKED      0
+#define CELL_BEGIN        '1'
+#define CELL_END          '2'
+#define CELL_ST_VISITED   '3'
+#define CELL_ST_NVISITED  '4'
+#define CELL_WRONG_WAY    '5'//cells out of the result path
+#define CELL_GOOD_WAY     '6'//cells in the result path
+#define CELL_BLOCKED      '0'
 
 #define VIEW_MODE_GRAPH   1
 #define VIEW_MODE_BOXES   0

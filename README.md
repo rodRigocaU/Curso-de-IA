@@ -10,6 +10,7 @@ EJERCICIOS DEJADOS EN CLASE DURANTE EL DESARROLLO DEL CURSO DE INTELIGENCIA ARTI
 
 ## Modo de ejecución
 ### 1.PATH FINDER:
-+ Los algoritmos y el graficador son dos ejecutables
-+ Los algoritmos escriben los datos como archivos de texto en la carpeta "ModuloGrafico/data"
-+ El graficador puede ejecutarse si hay datos en la carpeta "ModuloGrafico/data"
++ Los algoritmos y el graficador son dos ejecutables.
++ Los algoritmos escriben los datos como archivos de texto en la carpeta "ModuloGrafico-build/data".
++ La carpeta "ModuloGrafico-build/data" se crea al ejecutar el comando: cmake -G \<generator-type> -B \<build-path> en la carpeta "ModuloGrafico".
++ El graficador puede ejecutarse si hay datos en la carpeta "ModuloGrafico-build/data".

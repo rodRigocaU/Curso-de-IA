@@ -1,17 +1,42 @@
 #include "PFA_Tools.h"
 
 bool readData(const std::string& filename, std::vector<AlgorithmState>& playlist){
-  return true;
+  std::ifstream source_file;
+  source_file.open(filename);
+  if(source_file.is_open()){
+    AlgorithmState new_state;
+    char cell_state;
+    new_state.resize(1);
+    while(true){
+      source_file.get(cell_state);
+      if(source_file.eof())
+        break;
+      if(cell_state == '\n')
+        new_state.resize(new_state.size() + 1);
+      else
+        new_state[new_state.size() - 1].push_back(cell_state);
+    }
+    playlist.push_back(new_state);
+    source_file.close();
+    remove(filename.c_str());//comentar si no quieres que los archivos se eliminen luego de su uso
+    return true;
+  }
+  return false;
 }
 
 void readPlaylist(std::vector<AlgorithmState>& playlist){
+  algstate_idx = 0;
   uint32_t file_counter = 0;
   while(true){
     try{
       if(!readData("data/"+std::to_string(++file_counter)+".txt", playlist))
-        throw file_counter;
-    }catch(uint32_t& readed_files){
-      std::cout << "Number of states: " << readed_files - 1 << std::endl;
+        throw file_counter - 1;
+    }catch(const uint32_t& readed_files){
+      if(readed_files == 0) {
+        std::cerr << "Data folder is empty." << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      std::cout << "Number of states: " << readed_files << std::endl;
       break;
     }
   }
@@ -19,7 +44,7 @@ void readPlaylist(std::vector<AlgorithmState>& playlist){
 
 void drawCell(sf::RenderWindow& window, const uint32_t& x, const uint32_t& y, const char& cell){
   sf::RectangleShape cell_d(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-  cell_d.setPosition(x*CELL_SIZE,y*CELL_SIZE);
+  cell_d.setPosition(y*CELL_SIZE,x*CELL_SIZE);
   cell_d.setOutlineColor(sf::Color::Black);
   cell_d.setOutlineThickness(1.5);
   switch(cell){
@@ -39,7 +64,7 @@ void drawCell(sf::RenderWindow& window, const uint32_t& x, const uint32_t& y, co
       cell_d.setFillColor(sf::Color::Red);
       break;
     case CELL_GOOD_WAY:
-      cell_d.setFillColor(sf::Color(10,255,10));
+      cell_d.setFillColor(sf::Color(10,205,10));
       break;
     case CELL_BLOCKED:
       cell_d.setFillColor(sf::Color::Blue);
