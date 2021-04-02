@@ -2,9 +2,9 @@
 
 sf::Color makeDarkness(const sf::Color& color){
   sf::Color darkcolor;
-  darkcolor.r = ((color.r - 60 < 0)?0:(color.r - 40)) % 255;
-  darkcolor.g = ((color.g - 60 < 0)?0:(color.g - 40)) % 255;
-  darkcolor.b = ((color.b - 60 < 0)?0:(color.b - 40)) % 255;
+  darkcolor.r = ((color.r - 60 < 0)?0:(color.r - 60)) % 255;
+  darkcolor.g = ((color.g - 60 < 0)?0:(color.g - 60)) % 255;
+  darkcolor.b = ((color.b - 60 < 0)?0:(color.b - 60)) % 255;
   return darkcolor;
 }
 
@@ -161,7 +161,7 @@ void PathFinder::update(){
           if(nbegin && nend){
             clearVisited();
             if(id_algorithm == ID_A_STAR){
-
+              aStar(*nbegin);
             }
             else if(id_algorithm ==ID_BFS){
               bfs(*nbegin);

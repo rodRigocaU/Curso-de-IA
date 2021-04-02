@@ -5,6 +5,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+#include "A_Star.h"
 #include "BFS.h"
 #include "DFS.h"
 #include "Settings.h"

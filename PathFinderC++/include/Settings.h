@@ -13,26 +13,30 @@
 #define SET_MODE_BEGIN_CELL 1
 #define SET_MODE_END_CELL   2
 #define SET_MODE_OBSTACLE   3
+//Keys Graph Configuration:
 #define KEY_BEGIN_CELL      B
 #define KEY_END_CELL        N
 #define KEY_OBSTACLE        O
 #define KEY_RESET_GRAPH     R
-
+//----
 #define ID_A_STAR           0
 #define ID_BFS              1
 #define ID_DFS              2
 #define ALG_LIMIT           3
+//Keys Algorithm:
 #define KEY_RUN_ALGORITHM   P
 #define KEY_CLEAR_VISITED   L
 #define KEY_NEXT_ALGORITHM  Right
 #define KEY_PREV_ALGORITHM  Left
-
+//----
+//Keys Camera:
 #define MOVE_CAMERA_LEFT    A
 #define MOVE_CAMERA_RIGHT   D
 #define MOVE_CAMERA_TOP     W
 #define MOVE_CAMERA_DOWN    S
 #define CAMERA_ZOOM_CLOSE   E
 #define CAMERA_ZOOM_FAR     Q
+//----
 #define KEYBOARD(id_key)    sf::Keyboard::isKeyPressed(sf::Keyboard::id_key)
 
 #define CAMERA_X_VEL        2.5
