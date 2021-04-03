@@ -11,7 +11,7 @@ sf::Color makeDarkness(const sf::Color& color){
 void PathFinder::onSettingsText(){
   if (arial_font.loadFromFile("fonts/arial.ttf")){
     info.setFont(arial_font);
-    info.setCharacterSize(20);
+    info.setCharacterSize(18);
     info.setFillColor(sf::Color::White);
     info.setPosition(10,10);
   }
@@ -65,6 +65,7 @@ PathFinder::PathFinder(){
   nend = nullptr;
   set_mode_status = SET_MODE_NONE;
   id_algorithm = 0;
+  delta_time = 0;
   onSettingsText();
   printCurrentAlgorithm();
 }
@@ -108,7 +109,7 @@ void PathFinder::showGraph(){
       else if(node.isVisited)
         rect.setFillColor(sf::Color(100,100,255));
       else
-        rect.setFillColor(sf::Color::Blue);
+        rect.setFillColor(sf::Color(0,0,155));
       rect.setOutlineColor(makeDarkness(rect.getFillColor()));
       app->draw(rect);
     }
