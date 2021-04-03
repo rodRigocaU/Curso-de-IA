@@ -21,10 +21,12 @@
 #define KEY_REM_OBSTACLE    I
 #define KEY_RESET_GRAPH     R
 //----
-#define ID_A_STAR           0
-#define ID_BFS              1
-#define ID_DFS              2
-#define ALG_LIMIT           3
+#define ID_A_STAR_DIAGONAL  0
+#define ID_A_STAR_MANHATTAN 1
+#define ID_A_STAR_EUCLIDEAN 2
+#define ID_BFS              3
+#define ID_DFS              4
+#define ALG_LIMIT           5
 //Keys Algorithm:
 #define KEY_RUN_ALGORITHM   P
 #define KEY_CLEAR_VISITED   L

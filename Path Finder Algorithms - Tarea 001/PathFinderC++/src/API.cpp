@@ -9,12 +9,16 @@ sf::Color makeDarkness(const sf::Color& color){
 }
 
 void PathFinder::printCurrentAlgorithm(){
-  if(id_algorithm == ID_A_STAR)
-    std::cout << "Status: ALGORITHM A*\n";
+  if(id_algorithm == ID_A_STAR_DIAGONAL)
+    std::cout << "Status: ALGORITHM A* using Diagonal distance.\n";
+  if(id_algorithm == ID_A_STAR_MANHATTAN)
+    std::cout << "Status: ALGORITHM A* using Manhattan distance.\n";
+  if(id_algorithm == ID_A_STAR_EUCLIDEAN)
+    std::cout << "Status: ALGORITHM A* using Euclidean distance.\n";
   if(id_algorithm == ID_BFS)
-    std::cout << "Status: ALGORITHM BFS\n";
+    std::cout << "Status: ALGORITHM BFS.\n";
   if(id_algorithm == ID_DFS)
-    std::cout << "Status: ALGORITHM DFS\n";
+    std::cout << "Status: ALGORITHM DFS.\n";
 }
 
 PathFinder::PathFinder(){
@@ -167,8 +171,14 @@ void PathFinder::update(){
         if(KEYBOARD(KEY_RUN_ALGORITHM)){
           if(nbegin && nend){
             clearVisited();
-            if(id_algorithm == ID_A_STAR){
-              aStar(*nbegin,*nend);
+            if(id_algorithm == ID_A_STAR_DIAGONAL){
+              aStar(*nbegin,*nend);//diagonalDistance
+            }
+            else if(id_algorithm == ID_A_STAR_MANHATTAN){
+              aStar(*nbegin,*nend, manhattanDistance);
+            }
+            else if(id_algorithm == ID_A_STAR_EUCLIDEAN){
+              aStar(*nbegin,*nend, euclideanDistance);
             }
             else if(id_algorithm ==ID_BFS){
               bfs(*nbegin);
@@ -176,7 +186,6 @@ void PathFinder::update(){
             else if(id_algorithm == ID_DFS){
               dfs(*nbegin);
             }
-
           }
         }
         if(KEYBOARD(KEY_NEXT_ALGORITHM)){
