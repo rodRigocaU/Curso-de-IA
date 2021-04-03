@@ -8,6 +8,38 @@ sf::Color makeDarkness(const sf::Color& color){
   return darkcolor;
 }
 
+void PathFinder::onSettingsText(){
+  if (arial_font.loadFromFile("fonts/arial.ttf")){
+    info.setFont(arial_font);
+    info.setCharacterSize(20);
+    info.setFillColor(sf::Color::White);
+    info.setPosition(10,10);
+  }
+}
+
+void PathFinder::setStringInfo(){
+  std::string raw_info;
+  raw_info += "Current Algorithm: ";
+  if(id_algorithm == ID_A_STAR_DIAGONAL)
+    raw_info += "A* using Diagonal distance";
+  if(id_algorithm == ID_A_STAR_MANHATTAN)
+    raw_info += "A* using Manhattan distance";
+  if(id_algorithm == ID_A_STAR_EUCLIDEAN)
+    raw_info += "A* using Euclidean distance";
+  if(id_algorithm == ID_BFS)
+    raw_info += "BFS";
+  if(id_algorithm == ID_DFS)
+    raw_info += "DFS";
+  raw_info += ("\nGrid size: X:" + std::to_string(size_w) + " - Y:" + std::to_string(size_h));
+  raw_info += "\nStart node: ";
+  raw_info += (nbegin)?("READY"):("WAITING...");
+  raw_info += "\nEnd node: ";
+  raw_info += (nend)?("READY"):("WAITING...");
+  raw_info += "\n-- Camera Position : " + std::to_string(camera.getCenter().x) + " " + std::to_string(camera.getCenter().y);
+  raw_info += "\n-- Fps : " + std::to_string(delta_time);
+  info.setString(raw_info);
+}
+
 void PathFinder::printCurrentAlgorithm(){
   if(id_algorithm == ID_A_STAR_DIAGONAL)
     std::cout << "Status: ALGORITHM A* using Diagonal distance.\n";
@@ -26,12 +58,14 @@ PathFinder::PathFinder(){
   std::cout << "Height: "; std::cin >> size_h;
   app = std::make_unique<sf::RenderWindow>(sf::VideoMode(WINDOW_SIZE_W,WINDOW_SIZE_H), WINDOW_TITLE);
   app->setVerticalSyncEnabled(VERTICAL_SYNC);
+  app->setFramerateLimit(60);
   camera = app->getDefaultView();
   sparcing = CELL_SIZE;
   nbegin = nullptr;
   nend = nullptr;
   set_mode_status = SET_MODE_NONE;
   id_algorithm = 0;
+  onSettingsText();
   printCurrentAlgorithm();
 }
 
@@ -132,6 +166,9 @@ void PathFinder::update(){
   sf::Event action;
   sf::Vector2i mouse_pos;
   camera.setCenter(sf::Vector2f(size_w*sparcing/2,size_h*sparcing/2));
+  sf::View info_camera = app->getDefaultView();
+  
+  sf::Clock delta_clock;
   while(app->isOpen()){
     app->clear();
     app->setView(camera);
@@ -237,6 +274,10 @@ void PathFinder::update(){
     if(KEYBOARD(CAMERA_ZOOM_FAR))
       camera.zoom(CAMERA_ZOOMFACM);
     showGraph();
+    delta_time = 1.f / delta_clock.restart().asSeconds();
+    app->setView(info_camera);
+    setStringInfo();
+    app->draw(info);
     app->display();
   }
 }

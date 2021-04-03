@@ -15,6 +15,9 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
+file(GLOB FONT_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/fonts/*.ttf")
+file(COPY ${FONT_FOLDER} DESTINATION "${CMAKE_BINARY_DIR}/fonts") 
+
 if (SFML_FOUND)
     target_link_libraries(${PROJECT_NAME}
         sfml-graphics

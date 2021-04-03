@@ -24,8 +24,15 @@ class PathFinder{
   uint32_t set_mode_status;
 
   uint32_t id_algorithm;
+
+  sf::Font arial_font;
+  sf::Text info;
+
+  float delta_time;
 public:
   PathFinder();
+  void onSettingsText();
+  void setStringInfo();
   void printCurrentAlgorithm();
   void clearVisited();
   void buildRegularGraph();
