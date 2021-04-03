@@ -161,7 +161,7 @@ void PathFinder::update(){
           if(nbegin && nend){
             clearVisited();
             if(id_algorithm == ID_A_STAR){
-              aStar(*nbegin);
+              aStar(*nbegin,*nend);
             }
             else if(id_algorithm ==ID_BFS){
               bfs(*nbegin);
@@ -200,6 +200,7 @@ void PathFinder::update(){
           if(set_mode_status == SET_MODE_OBSTACLE){
             Node* temp = &nodes[relative.y / sparcing][relative.x / sparcing];
             temp->isObstacle = !temp->isObstacle;
+            temp->parent = nullptr;
             if(temp->isBegin) {temp->isBegin = false; nbegin = nullptr;}
             else if(temp->isEnd) {temp->isEnd = false; nend = nullptr;}
           }
