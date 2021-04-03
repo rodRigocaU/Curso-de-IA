@@ -5,177 +5,6 @@ import numpy as np
 import operator
 
 
-# Para el grafo de letras
-# dFS profundidad
-def dfs(G):
-    # Obtener los ID filtrados por alguna propiedad del nodo
-    # nodesAt5 = [x for x, y in G.nodes(data=True) if y['char'] == 'S']
-
-    # dicconario con sus valores pero no con su key
-    # print(type(G.nodes[1]))
-
-    global node_goal
-    char_node_origen = 'S'
-    char_node_goal = 'G'
-
-    # char_node_origen = input("Ingrese Nodo origen: ")
-    # char_node_goal = input("Ingrese Nodo objetivo: ")
-
-    # Retorna una lista de nodos con los que esta conectado
-    # print(list(nx.neighbors(G, 'S')))
-
-    try:
-        # El filtrado deuvelve en forma de lista por eso ponemos [0] porque deberia ser unico
-        id_node_origen = [x for x, y in G.nodes(data=True) if y['char'] == char_node_origen][0]
-        id_node_goal = [x for x, y in G.nodes(data=True) if y['char'] == char_node_goal][0]
-
-        L = [[G.nodes[id_node_origen]['char']]]
-        node_goal = G.nodes[id_node_goal]['char']
-
-    except ValueError:
-        print("El nodo de origen origen o de destino escrito no existe")
-        L = []
-    except IndexError:
-        print("El nodo de origen origen o de destino escrito no existe")
-        L = []
-
-    # Nuestra L temporal para almcenar nuevos caminos que son posibles recorrer
-    L_temp = []
-
-    while (len(L) != 0):
-
-        # n es el simbolo del nodo que nos enctramos
-        n = L[0][0]
-
-        if n == node_goal:
-            # Retornamos todo el camino , lo invertimos porque el camino inicia con el nodo objetivo
-            L[0].reverse()
-            return L[0]
-        else:
-            signo_nodo_eliminado = n
-            # print("Signo a Eliminar: ",signo_nodo_eliminado)
-
-            # Obtener los ID del nodo a eliminar
-            id_nodo_eliminado = [x for x, y in G.nodes(data=True) if y['char'] == signo_nodo_eliminado][0]
-            # print("ID del Nodo a Eliminar: ",id_nodo_eliminado)
-
-            # Guardamos el Camino recorrido
-            path = L[0]
-            L.pop(0)
-            # Obtenemos la lista de los vecinos de los nodos
-            list_id_vecinos = list(nx.neighbors(G, id_nodo_eliminado))
-            # print("Lista de ID : ",list_id_vecinos)
-            # print("Camino : ",path)
-
-            L_temp.clear()
-
-            for id_nbr in list_id_vecinos:
-                simbolo_nuevo = G.nodes[id_nbr]['char']
-
-                path_nuevo = path.copy()
-
-                # Evitar bucles en el grafo es preguntar por el camino recorrido si hay un antecente
-                if not simbolo_nuevo in path_nuevo:
-                    # Añadimos al camino recorrido la nueva decision es devir el simbolo correspondiente
-                    path_nuevo.insert(0, simbolo_nuevo)
-
-                    # L_temp solo almacena los caminos de los hijos que podemos avanzar, se separa porque L tiene ya Nodo aun por explorar
-                    L_temp.append(path_nuevo)
-
-            # print("Lista Nueva: ",L_temp)
-
-            # Actualizamos la lista de L con la lista de nuevos caminos
-
-            L = L_temp + L #DFS
-
-            # print(L)
-
-    else:
-        print("No hay solucion")
-        return None
-
-# bfs amplitud
-def bfs(G):
-    # Obtener los ID filtrados por alguna propiedad del nodo
-    # nodesAt5 = [x for x, y in G.nodes(data=True) if y['char'] == 'S']
-
-    # dicconario con sus valores pero no con su key
-    # print(type(G.nodes[1]))
-
-    char_node_origen = 'S'
-    char_node_goal = 'G'
-
-    # char_node_origen = input("Ingrese Nodo origen: ")
-    # char_node_goal = input("Ingrese Nodo objetivo: ")
-
-    # Retorna una lista de nodos con los que esta conectado
-    # print(list(nx.neighbors(G, 'S')))
-
-    try:
-        # El filtrado deuvelve en forma de lista por eso ponemos [0] porque deberia ser unico
-        id_node_origen = [x for x, y in G.nodes(data=True) if y['char'] == char_node_origen][0]
-        id_node_goal = [x for x, y in G.nodes(data=True) if y['char'] == char_node_goal][0]
-
-        L = [[G.nodes[id_node_origen]['char']]]
-        node_goal = G.nodes[id_node_goal]['char']
-
-    except ValueError:
-        print("El nodo de origen origen o de destino escrito no existe")
-        L = []
-    except IndexError:
-        print("El nodo de origen origen o de destino escrito no existe")
-        L = []
-
-    # Nuestra L temporal para almcenar nuevos caminos que son posibles recorrer
-    L_temp = []
-
-    while (len(L) != 0):
-
-        # n es el simbolo del nodo que nos enctramos
-        n = L[0][0]
-
-        if n == node_goal:
-            # Retornamos todo el camino , lo invertimos porque el camino inicia con el nodo objetivo
-            L[0].reverse()
-            return L[0]
-        else:
-            signo_nodo_eliminado = n
-            # print("Signo a Eliminar: ",signo_nodo_eliminado)
-
-            # Obtener los ID del nodo a eliminar
-            id_nodo_eliminado = [x for x, y in G.nodes(data=True) if y['char'] == signo_nodo_eliminado][0]
-            # print("ID del Nodo a Eliminar: ",id_nodo_eliminado)
-
-            # Guardamos el Camino recorrido
-            path = L[0]
-            L.pop(0)
-            # Obtenemos la lista de los vecinos de los nodos
-            list_id_vecinos = list(nx.neighbors(G, id_nodo_eliminado))
-            # print("Lista de ID : ",list_id_vecinos)
-            # print("Camino : ",path)
-
-            L_temp.clear()
-
-            for id_nbr in list_id_vecinos:
-                simbolo_nuevo = G.nodes[id_nbr]['char']
-
-                path_nuevo = path.copy()
-
-                # Evitar bucles en el grafo es preguntar por el camino recorrido si hay un antecente
-                if not simbolo_nuevo in path_nuevo:
-                    # Añadimos al camino recorrido la nueva decision es devir el simbolo correspondiente
-                    path_nuevo.insert(0, simbolo_nuevo)
-
-                    # L_temp solo almacena los caminos de los hijos que podemos avanzar, se separa porque L tiene ya Nodo aun por explorar
-                    L_temp.append(path_nuevo)
-
-            L = L + L_temp
-
-
-    else:
-        print("No hay solucion")
-        return None
-
 
 # Para el grafo de pruo numero
 # DFS profundidad
@@ -276,11 +105,10 @@ def Bfs(G,sign_node_origen , sign_node_goal):
         print("El nodo de origen origen o de destino escrito no existe")
         L = []
 
-    # Nuestra L temporal para almcenar nuevos caminos que son posibles recorrer
+    # Nuestra L temporal para almacenar nuevos caminos que son posibles recorrer
     L_temp = []
 
     while (len(L) != 0):
-
         # n es el simbolo del nodo que nos encontramos
         n = L[0][0]
 
@@ -290,10 +118,7 @@ def Bfs(G,sign_node_origen , sign_node_goal):
             return L[0]
         else:
             signo_nodo_eliminado = n
-            # print("Signo a Eliminar: ",signo_nodo_eliminado)
-
             id_nodo_eliminado = signo_nodo_eliminado
-            # print("ID del Nodo a Eliminar: ",id_nodo_eliminado)
 
             # Guardamos el Camino recorrido
             path = L[0]
@@ -301,8 +126,6 @@ def Bfs(G,sign_node_origen , sign_node_goal):
 
             # Obtenemos la lista de los vecinos de los nodos
             list_id_vecinos = list(nx.neighbors(G, id_nodo_eliminado))
-            # print("Lista de ID : ",list_id_vecinos)
-            # print("Camino : ",path)
 
             L_temp.clear()
 
@@ -319,11 +142,8 @@ def Bfs(G,sign_node_origen , sign_node_goal):
                     # L_temp solo almacena los caminos de los hijos que podemos avanzar, se separa porque L tiene ya Nodo aun por explorar
                     L_temp.append(path_nuevo)
 
-            # print("Lista Nueva: ",L_temp)
-
             # Actualizamos la lista de L con la lista de nuevos caminos
             L = L + L_temp
-            # print(L)
 
     else:
         print("No hay solucion")
@@ -342,17 +162,11 @@ def table_distance(G,idNodoObjetivo):
     ejes_nodo = np.array([0,0])
 
     for node in G.nodes(data=True):
-        # print(node," ",node[1]['eje_x']," ",node[1]['eje_y'])
-
         ejes_nodo[0]= node[1]['eje_x']
         ejes_nodo[1]= node[1]['eje_y']
 
-        # print(ejes_nodo)
-        # print(distance_euclidean(ejes_nodo_objetivo,ejes_nodo))
         d = distance_euclidean(ejes_nodo_objetivo,ejes_nodo)
         table[node[0]] = d
-
-    # print(table)
     return table
 
 
@@ -375,11 +189,6 @@ def A_asterisk(G,sign_node_origen , sign_node_goal):
         node_goal = G.nodes[id_node_goal]['sign']
 
         table = table_distance(G,node_goal)
-
-        # print(g(1,2,G))
-        # print(h(8,table))
-        # print(g(4))
-        # return 0
 
     except ValueError:
         print("El nodo de origen origen o de destino escrito no existe")
@@ -533,10 +342,8 @@ def all_algoritm(G):
         draw_color_graph_mat(G,path_dfs)
 
         plt.figure("BFS")
-        # G2 = G.copy()
         draw_color_graph_mat(G,path_bfs)
 
         plt.figure("A*")
-        # G3 = G.copy()
         draw_color_graph_mat(G,path_a_asterisco)
         plt.show()
