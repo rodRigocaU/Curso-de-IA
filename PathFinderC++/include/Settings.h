@@ -13,10 +13,12 @@
 #define SET_MODE_BEGIN_CELL 1
 #define SET_MODE_END_CELL   2
 #define SET_MODE_OBSTACLE   3
+#define SET_MODE_NORMAL     4
 //Keys Graph Configuration:
 #define KEY_BEGIN_CELL      B
 #define KEY_END_CELL        N
-#define KEY_OBSTACLE        O
+#define KEY_PUT_OBSTACLE    O
+#define KEY_REM_OBSTACLE    I
 #define KEY_RESET_GRAPH     R
 //----
 #define ID_A_STAR           0
