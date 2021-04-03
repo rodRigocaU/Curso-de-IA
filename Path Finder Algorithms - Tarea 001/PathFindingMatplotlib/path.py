@@ -10,10 +10,6 @@ import operator
 # DFS profundidad
 def Dfs(G,sign_node_origen , sign_node_goal):
     try:
-        # El filtrado deuvelve en forma de lista por eso ponemos [0] porque deberia ser unico
-        # id_node_origen = [x for x, y in G.nodes(data=True) if y['char'] == sign_node_origen][0]
-        # id_node_goal = [x for x, y in G.nodes(data=True) if y['char'] == sign_node_goal][0]
-
         id_node_origen = sign_node_origen
         id_node_goal = sign_node_goal
 

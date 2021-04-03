@@ -12,7 +12,6 @@ def create_graph():
 
     i = 1
 
-    # Ejes
     x = 1
     y = 1
 
