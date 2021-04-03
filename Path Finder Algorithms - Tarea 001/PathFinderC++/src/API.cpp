@@ -39,6 +39,7 @@ void PathFinder::resetGraph(){
       node.isObstacle = false;
       node.isBegin = false;
       node.isEnd = false;
+      node.local_distance_from_begin = node.global_distance_to_end = INFINITY_FLOAT;
       node.parent = nullptr;
     }
   }
@@ -49,6 +50,7 @@ void PathFinder::clearVisited(){
     for(Node& node : line){
       node.isVisited = false;
       node.parent = nullptr;
+      node.local_distance_from_begin = node.global_distance_to_end = INFINITY_FLOAT;
     }
   }
 }
@@ -144,10 +146,15 @@ void PathFinder::update(){
           set_mode_status = SET_MODE_END_CELL;
           std::cout << "Status: SETTING END_CELL\n";
         }
-        if(KEYBOARD(KEY_OBSTACLE)){
+        if(KEYBOARD(KEY_PUT_OBSTACLE)){
           clearVisited();
           set_mode_status = SET_MODE_OBSTACLE;
           std::cout << "Status: SETTING OBSTACLES\n";
+        }
+        if(KEYBOARD(KEY_REM_OBSTACLE)){
+          clearVisited();
+          set_mode_status = SET_MODE_NORMAL;
+          std::cout << "Status: REMOVING OBSTACLES\n";
         }
         if(KEYBOARD(KEY_RESET_GRAPH)){
           resetGraph();
@@ -161,7 +168,7 @@ void PathFinder::update(){
           if(nbegin && nend){
             clearVisited();
             if(id_algorithm == ID_A_STAR){
-              aStar(*nbegin);
+              aStar(*nbegin,*nend);
             }
             else if(id_algorithm ==ID_BFS){
               bfs(*nbegin);
@@ -197,9 +204,10 @@ void PathFinder::update(){
             nend->isEnd = true;
             nend->isObstacle = false;
           }
-          if(set_mode_status == SET_MODE_OBSTACLE){
+          if(set_mode_status == SET_MODE_OBSTACLE || set_mode_status == SET_MODE_NORMAL){
             Node* temp = &nodes[relative.y / sparcing][relative.x / sparcing];
-            temp->isObstacle = !temp->isObstacle;
+            temp->isObstacle = (set_mode_status == SET_MODE_OBSTACLE)?1:0;
+            temp->parent = nullptr;
             if(temp->isBegin) {temp->isBegin = false; nbegin = nullptr;}
             else if(temp->isEnd) {temp->isEnd = false; nend = nullptr;}
           }
