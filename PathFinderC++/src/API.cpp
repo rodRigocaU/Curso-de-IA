@@ -39,6 +39,7 @@ void PathFinder::resetGraph(){
       node.isObstacle = false;
       node.isBegin = false;
       node.isEnd = false;
+      node.local_distance_from_begin = node.global_distance_to_end = INFINITY_FLOAT;
       node.parent = nullptr;
     }
   }
@@ -49,6 +50,7 @@ void PathFinder::clearVisited(){
     for(Node& node : line){
       node.isVisited = false;
       node.parent = nullptr;
+      node.local_distance_from_begin = node.global_distance_to_end = INFINITY_FLOAT;
     }
   }
 }

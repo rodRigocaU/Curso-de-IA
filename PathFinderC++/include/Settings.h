@@ -47,4 +47,6 @@
 #define CAMERA_ZOOMFACP     0.95
 #define CAMERA_MOVE_FAC     0.006
 
+#define INFINITY_FLOAT      99999.0
+
 #endif//SETTINGS_H_
