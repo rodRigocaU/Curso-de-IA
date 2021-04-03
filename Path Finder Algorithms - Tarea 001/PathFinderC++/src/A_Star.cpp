@@ -77,15 +77,16 @@ void aStar(Node &begin, Node &end, std::function<float(Node&,Node&)> heuristic){
       currentNode->isVisited = true;
 
       for(Node* neighbor : currentNode->neighbours){
-        if(!neighbor->isVisited && !neighbor->isObstacle)
+        if(!neighbor->isVisited && !neighbor->isObstacle){
           listNodesToTest.push_back(neighbor);
 
-        float possibleLowerDistance = currentNode->local_distance_from_begin + diagonalDistance(*currentNode, *neighbor);
-          
-        if(possibleLowerDistance < neighbor->local_distance_from_begin){
-          neighbor->parent = currentNode;
-          neighbor->local_distance_from_begin = possibleLowerDistance;
-          neighbor->global_distance_to_end = neighbor->local_distance_from_begin + heuristic(*neighbor, end);
+          float possibleLowerDistance = currentNode->local_distance_from_begin + diagonalDistance(*currentNode, *neighbor);
+            
+          if(possibleLowerDistance < neighbor->local_distance_from_begin){
+            neighbor->parent = currentNode;
+            neighbor->local_distance_from_begin = possibleLowerDistance;
+            neighbor->global_distance_to_end = neighbor->local_distance_from_begin + heuristic(*neighbor, end);
+          }
         }
       }
     }
