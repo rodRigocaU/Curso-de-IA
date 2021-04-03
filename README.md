@@ -1,16 +1,14 @@
-# Curso-de-IA
-EJERCICIOS DEJADOS EN CLASE DURANTE EL DESARROLLO DEL CURSO DE INTELIGENCIA ARTIFICIAL. 
+# **Curso-de-Inteligencia Artificial - Universidad Católica San Pablo**
+Este repositorio contiene los trabajos de desarrollo en grupo dejados en clase del curso de Inteligencia Artificial del 7mo semestre de la carrera de Ciencias de la Computación.
 
-## INTEGRANTES:
+## Integrantes del grupo:
 
 - Luis Alexin Salazar Marroquin
 - Yhon Yerson Sanchez Yucra
 - Italo Mamani Huaricallo
 - Rodrigo Andre Cayro Cuadros
 
-## Modo de ejecución
-### 1.PATH FINDER:
-+ Los algoritmos y el graficador son dos ejecutables.
-+ Los algoritmos escriben los datos como archivos de texto en la carpeta "ModuloGrafico-build/data".
-+ La carpeta "ModuloGrafico-build/data" se crea al ejecutar el comando: cmake -G \<generator-type> -B \<build-path> en la carpeta "ModuloGrafico".
-+ El graficador puede ejecutarse si hay datos en la carpeta "ModuloGrafico-build/data".
+## Proyectos:
+
+1. Algoritmos de Búsqueda de caminos (A*, BFS, DFS) - 03/04/2021.\
+   └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Path%20Finder%20Algorithms%20-%20Tarea%20001)
