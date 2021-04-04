@@ -26,7 +26,8 @@
 #define ID_A_STAR_EUCLIDEAN 2
 #define ID_BFS              3
 #define ID_DFS              4
-#define ALG_LIMIT           5
+#define ID_HILL_CLIMBING    5
+#define ALG_LIMIT           6
 //Keys Algorithm:
 #define KEY_RUN_ALGORITHM   P
 #define KEY_CLEAR_VISITED   L

@@ -8,6 +8,7 @@
 #include "A_Star.h"
 #include "BFS.h"
 #include "DFS.h"
+#include "HillClimbing.h"
 #include "Settings.h"
 
 sf::Color makeDarkness(const sf::Color& color);

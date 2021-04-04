@@ -30,6 +30,8 @@ void PathFinder::setStringInfo(){
     raw_info += "BFS";
   if(id_algorithm == ID_DFS)
     raw_info += "DFS";
+  if(id_algorithm == ID_HILL_CLIMBING)
+    raw_info += "Hill Climbing";
   raw_info += ("\nGrid size: X:" + std::to_string(size_w) + " - Y:" + std::to_string(size_h));
   raw_info += "\nStart node: ";
   raw_info += (nbegin)?("READY"):("WAITING...");
@@ -51,6 +53,8 @@ void PathFinder::printCurrentAlgorithm(){
     std::cout << "Status: ALGORITHM BFS.\n";
   if(id_algorithm == ID_DFS)
     std::cout << "Status: ALGORITHM DFS.\n";
+  if(id_algorithm == ID_HILL_CLIMBING)
+    std::cout << "Status: ALGORITHM Hill Climbing.\n";
 }
 
 PathFinder::PathFinder(){
@@ -224,6 +228,11 @@ void PathFinder::update(){
             else if(id_algorithm == ID_DFS){
               dfs(*nbegin);
             }
+            else if(id_algorithm == ID_HILL_CLIMBING){
+              hillClimbing(*nbegin, *nend);
+            }
+            nbegin->parent = nullptr;
+            std::cout << "Status: Done!" << std::endl;
           }
         }
         if(KEYBOARD(KEY_NEXT_ALGORITHM)){
