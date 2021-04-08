@@ -4,16 +4,16 @@ Programa interactivo que permite visualizar los algoritmos de búsqueda de camin
 
 ## Requerimientos:
 - Python
-
-## Instalación:
-- `cd PathFinderC++`
-- `mkdir build`
-- `cmake -G <Generador> -B "build"`
-- `cd build`
-
-## Ejecución:
-- `./PathFinder.exe`
-
-## Controles:
-- Ver el archivo Settings.h de la carpeta PathFinderC++/include
-- Las teclas disponibles están marcadas por los comentarios `//Keys ...` y `//----`
+- cycler==0.10.0
+- decorator==4.4.2
+- kiwisolver==1.3.1
+- matplotlib==3.4.0
+- network==0.1
+- networkx==2.5
+- numpy==1.20.2
+- Pillow==8.1.2
+- pygame==2.0.1
+- pyparsing==2.4.7
+- python-dateutil==2.8.1
+- scipy==1.6.2
+- six==1.15.0
