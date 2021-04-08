@@ -3,7 +3,7 @@
 Programa interactivo que permite visualizar los algoritmos de búsqueda de caminos A*, BFS y DFS.
 
 ## Requerimientos:
-- SFML 2.5.1
+- Python
 
 ## Instalación:
 - `cd PathFinderC++`
