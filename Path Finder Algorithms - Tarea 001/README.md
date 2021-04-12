@@ -1,4 +1,4 @@
-# **Algoritmos de Búsqueda de Caminos (A*, BFS, DFS)**
+# **Algoritmos de Búsqueda de Caminos (A\*, BFS, DFS)**
 
 ## Última fecha de modificación: 03/04/2021
 
