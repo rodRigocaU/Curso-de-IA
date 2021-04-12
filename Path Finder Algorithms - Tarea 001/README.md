@@ -15,7 +15,7 @@ Programa interactivo que permite visualizar los algoritmos de búsqueda de camin
 - SFML 2.5.1 instalado
 
 ## Instalación:
-- `cd PathFinderC++`
+- `cd LaboratorioBusquedas`
 - `mkdir build`
 - `cmake -G <Generador> -B "build"`
 - `cd build`
@@ -24,5 +24,5 @@ Programa interactivo que permite visualizar los algoritmos de búsqueda de camin
 - `./PathFinder`
 
 ## Controles:
-- Ver el archivo Settings.h de la carpeta PathFinderC++/include
+- Ver el archivo Settings.h de la carpeta LaboratorioBusquedas/include
 - Las teclas disponibles están marcadas por los comentarios `//Keys ...` y `//----`
