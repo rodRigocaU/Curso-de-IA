@@ -36,7 +36,7 @@ Programa interactivo que permite visualizar los algoritmos de búsqueda de camin
 ## Algorithm Hill Climbing
 ![img](img/5.png)
 # Blind search 
-## Algorithm DFS
-![img](img/3.png)
 ## Algorithm BFS
+![img](img/3.png)
+## Algorithm DFS
 ![img](img/4.png)
