@@ -12,6 +12,8 @@ file(GLOB SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+include_directories(include)
+
 if (SFML_FOUND)
     target_link_libraries(${PROJECT_NAME}
         sfml-graphics
