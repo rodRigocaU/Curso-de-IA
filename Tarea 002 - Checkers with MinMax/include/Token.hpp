@@ -9,6 +9,8 @@ struct Token{
   sf::Vector2<uint8_t> globalPosition;
   sf::Texture* tokenTexture;
   sf::Sprite tokenBody;
+
+  Token();
 };
 
 }
