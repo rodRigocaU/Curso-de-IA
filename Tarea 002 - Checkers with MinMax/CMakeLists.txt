@@ -14,6 +14,9 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 include_directories(include)
 
+file(GLOB ASSETS_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+file(COPY ${ASSETS_FOLDER} DESTINATION "${CMAKE_BINARY_DIR}") 
+
 if (SFML_FOUND)
     target_link_libraries(${PROJECT_NAME}
         sfml-graphics

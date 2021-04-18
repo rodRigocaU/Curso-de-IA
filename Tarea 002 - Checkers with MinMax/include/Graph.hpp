@@ -47,17 +47,17 @@ Node* Node::searchSuccessor(LevelType levelType){
   int8_t minmaxValue = 0;
   std::function<bool(const int8_t&,const int8_t&)> comparator;
   switch(levelType){
-    case MAX:
+    case LevelType::MAX:
       comparator = [](const int8_t& A,const int8_t& B){return A > B;};
       minmaxValue = std::numeric_limits<int8_t>::min();
       break;
-    case MIN:
+    case LevelType::MIN:
       comparator = [](const int8_t& A,const int8_t& B){return A < B;};
       minmaxValue = std::numeric_limits<int8_t>::max();
       break;
   }
   for(std::shared_ptr<Node>& successor : successors)
-    if(comparator(successor->value_, minmaxValue))
+    if(comparator(successor->value_, minmaxValue) && !successor->wasPruned)
       selectedNode = successor.get();
   return selectedNode;
 }
