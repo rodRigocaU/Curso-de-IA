@@ -8,7 +8,7 @@
 - Rodrigo Andre Cayro Cuadros
 
 ## Requerimientos:
--cycler==0.10.0
+-cycler==0.10.0<br />
 -kiwisolver==1.3.1
 -matplotlib==3.4.1
 -numpy==1.20.2
