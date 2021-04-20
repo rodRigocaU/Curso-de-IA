@@ -39,11 +39,9 @@ private:
       for(std::size_t y = 0; y < 8; ++y)
         for(std::size_t x = 0; x < 8; ++x){
           mSimulationBoard[y][x] = currentBoard[y][x];
+          if(mSimulationBoard[y][x] == -1) ++botTokenCount;
+          else if(mSimulationBoard[y][x] == 1) ++humanTokenCount;
         }
-    }
-
-    bool gameOver(){
-      return successors.empty();
     }
   };
 
@@ -59,6 +57,9 @@ private:
   short mboard[8][8] = {0};
   int8_t humanTokenCount, botTokenCount;
   Turn gameState;
+  uint32_t treeDepth;
+  std::shared_ptr<GameStatus> root;
+
   sf::Vector2<int8_t> currentHumanTokenSelected;
   sf::Texture tokenTexture, board;
   sf::Sprite tokenSprite;
@@ -71,6 +72,7 @@ private:
                       int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max());
   bool getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
   void displayGame(sf::RenderWindow& window);
+  bool gameOver(std::shared_ptr<GameStatus> currentGameState);
 public:
   void start();
 };
@@ -80,6 +82,7 @@ public:
 //#################################################################
 
 void CheckersGame::setInitialPositions(){
+  treeDepth = 2;
   tokenSprite.setTexture(tokenTexture);
   tokenSprite.setScale(0.15,0.15);
   humanTokenCount = botTokenCount = 12;
@@ -191,36 +194,56 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
       }
       break;
     case Turn::BOT:
-      //min max
+      root = std::make_shared<GameStatus>(mboard);
+      minmaxAlphaBeta(root, treeDepth, gameState);
+      std::cout << root->successors.size() << std::endl;
       gameState = Turn::HUMAN;
       break;
   }
 }
 
-int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameState, uint32_t depth, Turn currentTurn, int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max()){
-  getNextSimulation(currentTurn, currentGameState);
-  if(depth == 0 || currentGameState->gameOver())
+int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameState, uint32_t depth, Turn currentTurn, int8_t alpha, int8_t beta){
+  if(depth == 0 || gameOver(currentGameState))
     return currentGameState->botTokenCount - currentGameState->humanTokenCount;
-  switch(currentTurn){
-    case Turn::BOT://MAX
-      int8_t maxEvaluation = std::numeric_limits<int8_t>::min();
-      while(getNextSimulation(currentTurn, currentGameState)){
-        currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::HUMAN, alpha, beta);
-        maxEvaluation = std::max(currentGameState->successors.back()->value, maxEvaluation);
-        alpha = std::max(alpha, currentGameState->successors.back()->value);
-        if(beta <= alpha) break;
+  if(currentTurn == Turn::BOT){//MAX
+    int8_t maxEvaluation = std::numeric_limits<int8_t>::min();
+    while(getNextSimulation(currentTurn, currentGameState)){
+      std::cout << "BOT EVAL HUMAN\n";
+      /*for(std::size_t y = 0; y < 8; ++y){
+        for(std::size_t x = 0; x < 8; ++x){
+          std::cout << currentGameState->mSimulationBoard[y][x] << ' ';
+        }
+        std::cout << std::endl;
       }
-      return maxEvaluation;
-    case Turn::HUMAN://MIN
-      int8_t minEvaluation = std::numeric_limits<int8_t>::max();
-      while(getNextSimulation(currentTurn, currentGameState)){
-        currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::BOT, alpha, beta);
-        minEvaluation = std::max(currentGameState->successors.back()->value, minEvaluation);
-        beta = std::min(beta, currentGameState->successors.back()->value);
-        if(beta <= alpha) break;
-      }
-      return minEvaluation;
+      std::cout << "BOT EVAL HUMAN\n";*/
+      currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::HUMAN, alpha, beta);
+      maxEvaluation = std::max(currentGameState->successors.back()->value, maxEvaluation);
+      alpha = std::max(alpha, currentGameState->successors.back()->value);
+      //if(beta <= alpha) break;
+    }
+    std::cout << "Max Eval: " << int(maxEvaluation) << std::endl;
+    return maxEvaluation;
   }
+  else if(currentTurn == Turn::HUMAN){//MIN
+    int8_t minEvaluation = std::numeric_limits<int8_t>::max();
+    while(getNextSimulation(currentTurn, currentGameState)){
+      std::cout << "HUMAN EVAL BOT\n";
+      /*for(std::size_t y = 0; y < 8; ++y){
+        for(std::size_t x = 0; x < 8; ++x){
+          std::cout << currentGameState->mSimulationBoard[y][x] << ' ';
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "HUMAN EVAL BOT\n";*/
+      currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::BOT, alpha, beta);
+      minEvaluation = std::max(currentGameState->successors.back()->value, minEvaluation);
+      beta = std::min(beta, currentGameState->successors.back()->value);
+      //if(beta <= alpha) break;
+    }
+    std::cout << "Min Eval: " << int(minEvaluation) << std::endl;
+    return minEvaluation;
+  }
+  return 0;
 }
 
 bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState){
@@ -238,35 +261,58 @@ bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatu
         dy = 1;
         break;
     }
-    for(std::size_t y = 0; y < 8; ++y)
-      for(std::size_t x = 0; x < 8; ++x){
-        if(token == -1) ++currentGameState->botTokenCount;
-        else if(token == 1) ++currentGameState->humanTokenCount;
-
+    bool continueWithSimulation = true;
+    for(std::size_t y = currentGameState->auxidy; y < 8; ++y, currentGameState->auxidy = y){
+      for(std::size_t x = (continueWithSimulation)?currentGameState->auxidx:0; x < 8; ++x){
         if(currentGameState->mSimulationBoard[y][x] == token){
           Movement moveType;
           if(currentGameState->currentDir2Check == Direction::LEFT){
+            currentGameState->currentDir2Check = Direction::RIGHT;
             moveType = validateMovement(currentGameState->mSimulationBoard, currentTurn, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + dy));
             if(moveType != Movement::ILLEGAL){
-              currentGameState->currentDir2Check = Direction::RIGHT;
+              currentGameState->auxidx = x;
               currentGameState->successors.push_back(std::make_shared<GameStatus>(currentGameState->mSimulationBoard));
               confirmMovement(currentGameState->successors.back()->mSimulationBoard, moveType, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + dy));
               return true;
             }
+            --x;
           }
           else if(currentGameState->currentDir2Check == Direction::RIGHT){
+            currentGameState->currentDir2Check = Direction::LEFT;
             moveType = validateMovement(currentGameState->mSimulationBoard, currentTurn, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + dy));
             if(moveType != Movement::ILLEGAL){
-              currentGameState->currentDir2Check = Direction::LEFT;
+              currentGameState->auxidx = x + 1;
               currentGameState->successors.push_back(std::make_shared<GameStatus>(currentGameState->mSimulationBoard));
               confirmMovement(currentGameState->successors.back()->mSimulationBoard, moveType, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + dy));
+              return true;
             }
-            return true;
           }
         }
       }
+      continueWithSimulation = false;
+    }
+    currentGameState->auxidy = 8;
   }
   return false;
+}
+
+bool CheckersGame::gameOver(std::shared_ptr<GameStatus> currentGameState){
+  for(std::size_t y = 0; y < 8; ++y)
+    for(std::size_t x = 0; x < 8; ++x){
+      if(currentGameState->mSimulationBoard[y][x] == 1){
+        bool somethingToDo = false;
+        somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y - 1)) != Movement::ILLEGAL);
+        somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y - 1)) != Movement::ILLEGAL);
+        if(somethingToDo == true) return false;
+      }
+      else if(currentGameState->mSimulationBoard[y][x] == -1){
+        bool somethingToDo = false;
+        somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + 1)) != Movement::ILLEGAL);
+        somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + 1)) != Movement::ILLEGAL);
+        if(somethingToDo == true) return false;
+      }
+    }
+  return true;
 }
 
 void CheckersGame::start(){
