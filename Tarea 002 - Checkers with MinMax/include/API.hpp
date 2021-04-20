@@ -209,17 +209,10 @@ int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameStat
     int8_t maxEvaluation = std::numeric_limits<int8_t>::min();
     while(getNextSimulation(currentTurn, currentGameState)){
       std::cout << "BOT EVAL HUMAN\n";
-      /*for(std::size_t y = 0; y < 8; ++y){
-        for(std::size_t x = 0; x < 8; ++x){
-          std::cout << currentGameState->mSimulationBoard[y][x] << ' ';
-        }
-        std::cout << std::endl;
-      }
-      std::cout << "BOT EVAL HUMAN\n";*/
       currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::HUMAN, alpha, beta);
       maxEvaluation = std::max(currentGameState->successors.back()->value, maxEvaluation);
       alpha = std::max(alpha, currentGameState->successors.back()->value);
-      //if(beta <= alpha) break;
+      if(beta <= alpha) break;
     }
     std::cout << "Max Eval: " << int(maxEvaluation) << std::endl;
     return maxEvaluation;
@@ -228,17 +221,10 @@ int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameStat
     int8_t minEvaluation = std::numeric_limits<int8_t>::max();
     while(getNextSimulation(currentTurn, currentGameState)){
       std::cout << "HUMAN EVAL BOT\n";
-      /*for(std::size_t y = 0; y < 8; ++y){
-        for(std::size_t x = 0; x < 8; ++x){
-          std::cout << currentGameState->mSimulationBoard[y][x] << ' ';
-        }
-        std::cout << std::endl;
-      }
-      std::cout << "HUMAN EVAL BOT\n";*/
       currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::BOT, alpha, beta);
       minEvaluation = std::max(currentGameState->successors.back()->value, minEvaluation);
       beta = std::min(beta, currentGameState->successors.back()->value);
-      //if(beta <= alpha) break;
+      if(beta <= alpha) break;
     }
     std::cout << "Min Eval: " << int(minEvaluation) << std::endl;
     return minEvaluation;
