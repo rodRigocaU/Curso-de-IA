@@ -56,7 +56,9 @@ private:
                         0, 1, 0, 1, 0, 1, 0, 1 };
   short mboard[8][8] = {0};
   int8_t humanTokenCount, botTokenCount;
-  Turn gameState;
+  Turn gameTurn;
+  bool gameFinished;
+
   uint32_t treeDepth;
   std::shared_ptr<GameStatus> root, choosenBotMovement;
 
@@ -72,7 +74,7 @@ private:
                       int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max());
   bool getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
   void displayGame(sf::RenderWindow& window);
-  bool gameOver(std::shared_ptr<GameStatus> currentGameState);
+  bool gameOver(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
 public:
   void start();
 };
@@ -82,7 +84,9 @@ public:
 //#################################################################
 
 void CheckersGame::setInitialPositions(){
+  gameTurn = Turn::BOT;
   treeDepth = 7;
+  gameFinished = false;
   tokenSprite.setTexture(tokenTexture);
   tokenSprite.setScale(0.15,0.15);
   humanTokenCount = botTokenCount = 12;
@@ -163,7 +167,7 @@ void CheckersGame::confirmMovement(short currentBoard[8][8], Movement moveType, 
 }
 
 void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
-  switch(gameState){
+  switch(gameTurn){
     case Turn::HUMAN:
       if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && humanTokenCount > 0){
         currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
@@ -179,8 +183,9 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
           if(moveType != Movement::ILLEGAL){
             if(moveType == Movement::MURDER)
               --botTokenCount;
-            gameState = Turn::BOT;   
+            gameTurn = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
+            gameFinished = gameOver(gameTurn, std::make_shared<GameStatus>(mboard));
           }
         }
         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
@@ -189,7 +194,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
           if(moveType != Movement::ILLEGAL){
             if(moveType == Movement::MURDER)
               --botTokenCount;
-            gameState = Turn::BOT;   
+            gameTurn = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
           }
         }
@@ -197,7 +202,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
       break;
     case Turn::BOT:
       root = std::make_shared<GameStatus>(mboard);
-      minmaxAlphaBeta(root, treeDepth, gameState);
+      minmaxAlphaBeta(root, treeDepth, gameTurn);
       //std::cout << root->successors.size() << std::endl;
       if(choosenBotMovement != nullptr){
         std::cout << "choosen value: " << int(choosenBotMovement->value) << std::endl;
@@ -207,15 +212,18 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
           for(std::size_t x = 0; x < 8; ++x){
             mboard[y][x] = choosenBotMovement->mSimulationBoard[y][x];
           }
+        std::cout << "humano tiene: " << int(humanTokenCount) << " fichas\n";
+        std::cout << "bot tiene: " << int(botTokenCount) << " fichas\n";
       }
+      gameTurn = Turn::HUMAN;
+      gameFinished = gameOver(gameTurn, choosenBotMovement);
       choosenBotMovement.reset();
-      gameState = Turn::HUMAN;
       break;
   }
 }
 
 int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameState, uint32_t depth, Turn currentTurn, int8_t alpha, int8_t beta){
-  if(depth == 0 || gameOver(currentGameState))
+  if(depth == 0 || gameOver(currentTurn, currentGameState))
     return currentGameState->botTokenCount - currentGameState->humanTokenCount;
   if(currentTurn == Turn::BOT){//MAX
     int8_t maxEvaluation = std::numeric_limits<int8_t>::min();
@@ -229,7 +237,6 @@ int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameStat
       alpha = std::max(alpha, currentGameState->successors.back()->value);
       if(beta <= alpha) break;
     }
-    //std::cout << "Max Eval: " << int(maxEvaluation) << std::endl;
     return maxEvaluation;
   }
   else if(currentTurn == Turn::HUMAN){//MIN
@@ -240,10 +247,9 @@ int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameStat
       beta = std::min(beta, currentGameState->successors.back()->value);
       if(beta <= alpha) break;
     }
-    //std::cout << "Min Eval: " << int(minEvaluation) << std::endl;
     return minEvaluation;
   }
-  return 0;
+  return 0;//never happen
 }
 
 bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState){
@@ -308,7 +314,7 @@ bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatu
   return false;
 }
 
-bool CheckersGame::gameOver(std::shared_ptr<GameStatus> currentGameState){
+bool CheckersGame::gameOver(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState){
   if(currentGameState != nullptr){
     if(currentGameState->humanTokenCount == 0 || currentGameState->botTokenCount == 0)
       return true;
@@ -316,23 +322,27 @@ bool CheckersGame::gameOver(std::shared_ptr<GameStatus> currentGameState){
     bool somethingToDoB = false;
     for(std::size_t y = 0; y < 8; ++y)
       for(std::size_t x = 0; x < 8; ++x){
-        if(currentGameState->mSimulationBoard[y][x] == 1){
+        if(currentGameState->mSimulationBoard[y][x] == 1 && currentTurn == Turn::HUMAN){
           somethingToDoH = somethingToDoH || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y - 1)) != Movement::ILLEGAL);
           somethingToDoH = somethingToDoH || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y - 1)) != Movement::ILLEGAL);
+          if(somethingToDoH){
+            return false;
+          }
         }
-        else if(currentGameState->mSimulationBoard[y][x] == 2){
+        else if(currentGameState->mSimulationBoard[y][x] == 2 && currentTurn == Turn::BOT){
           somethingToDoB = somethingToDoB || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + 1)) != Movement::ILLEGAL);
           somethingToDoB = somethingToDoB || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + 1)) != Movement::ILLEGAL);
+          if(somethingToDoB){
+            return false;
+          }
         }
       }
-    if(somethingToDoH && somethingToDoB)
-      return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 void CheckersGame::start(){
-  gameState = Turn::HUMAN;
   sf::RenderWindow app(sf::VideoMode(617,617 + SIZE_HUD), "Checkers Game");
   app.setFramerateLimit(60);
 
@@ -351,7 +361,12 @@ void CheckersGame::start(){
         app.close();
       }
     }
-    onControlsUpdate(app);
+    if(gameFinished){
+      std::cout << "GG" << std::endl;
+    }
+    else{
+      onControlsUpdate(app);
+    }
     app.clear();
     app.draw(displayableBoard);
     displayGame(app);
