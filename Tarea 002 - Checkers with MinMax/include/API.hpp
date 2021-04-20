@@ -39,16 +39,16 @@ private:
       for(std::size_t y = 0; y < 8; ++y)
         for(std::size_t x = 0; x < 8; ++x){
           mSimulationBoard[y][x] = currentBoard[y][x];
-          if(mSimulationBoard[y][x] == -1) ++botTokenCount;
+          if(mSimulationBoard[y][x] == 2) ++botTokenCount;
           else if(mSimulationBoard[y][x] == 1) ++humanTokenCount;
         }
     }
   };
 
-  //Checker's board (-1 -> bot) && (1 -> human)
-  short backup[8][8] = {-1, 0,-1, 0,-1, 0,-1, 0,
-                        0,-1, 0,-1, 0,-1, 0,-1,
-                        -1, 0,-1, 0,-1, 0,-1, 0,
+  //Checker's board (2 -> bot) && (1 -> human)
+  short backup[8][8] = {2, 0, 2, 0, 2, 0, 2, 0,
+                        0, 2, 0, 2, 0, 2, 0, 2,
+                        2, 0, 2, 0, 2, 0, 2, 0,
                         0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0,
                         0, 1, 0, 1, 0, 1, 0, 1,
@@ -98,7 +98,7 @@ void CheckersGame::displayGame(sf::RenderWindow& window){
       if(mboard[y][x] != 0){
         if(mboard[y][x] == 1)
           tokenSprite.setColor(sf::Color::Red);
-        else if(mboard[y][x] == -1)
+        else if(mboard[y][x] == 2)
           tokenSprite.setColor(sf::Color(55,55,55));
         tokenSprite.setPosition(x * tokenSprite.getGlobalBounds().width, y * tokenSprite.getGlobalBounds().height);
         window.draw(tokenSprite);
@@ -122,7 +122,7 @@ Movement CheckersGame::validateMovement(short currentBoard[8][8], Turn currentTu
           if(currentBoard[end.y][end.x] == 0){//if end is not occupated by another human's token
             return Movement::SIMPLE;
           }
-          else if(currentBoard[end.y][end.x] == -1){//if end is occupated by a bot's token
+          else if(currentBoard[end.y][end.x] == 2){//if end is occupated by a bot's token
             if((2*end.x - begin.x) >= 0 && (2*end.y - begin.y) >= 0 && (2*end.x - begin.x) < 8 && (2*end.y - begin.y) < 8 && currentBoard[2*end.y - begin.y][2*end.x - begin.x] == 0)
               return Movement::MURDER;
           }
@@ -146,7 +146,7 @@ Movement CheckersGame::validateMovement(short currentBoard[8][8], Turn currentTu
 
 void CheckersGame::confirmMovement(short currentBoard[8][8], Movement moveType, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end){
   sf::Vector2<int8_t> distance = end - begin;
-  short token = (distance.y > 0)?-1:1;
+  short token = (distance.y > 0)?2:1;
   switch(moveType){
     case Movement::ILLEGAL:
       return;
@@ -259,7 +259,7 @@ bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatu
         break;
       
       case Turn::BOT:
-        token = -1;
+        token = 2;
         dy = 1;
         break;
     }
@@ -319,7 +319,7 @@ bool CheckersGame::gameOver(std::shared_ptr<GameStatus> currentGameState){
         somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y - 1)) != Movement::ILLEGAL);
         if(somethingToDo == true) return false;
       }
-      else if(currentGameState->mSimulationBoard[y][x] == -1){
+      else if(currentGameState->mSimulationBoard[y][x] == 2){
         bool somethingToDo = false;
         somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + 1)) != Movement::ILLEGAL);
         somethingToDo = somethingToDo || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + 1)) != Movement::ILLEGAL);
