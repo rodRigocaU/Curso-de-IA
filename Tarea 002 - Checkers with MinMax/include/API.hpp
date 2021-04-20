@@ -123,7 +123,7 @@ Movement CheckersGame::validateMovement(short currentBoard[8][8], Turn currentTu
             return Movement::SIMPLE;
           }
           else if(currentBoard[end.y][end.x] == -1){//if end is occupated by a bot's token
-            if((end.x - begin.x) >= 0 && (end.y - begin.y) >= 0 && (end.x - begin.x) < 8 && (end.y - begin.y) < 8 && currentBoard[2*end.y - begin.y][2*end.x - begin.x] == 0)
+            if((2*end.x - begin.x) >= 0 && (2*end.y - begin.y) >= 0 && (2*end.x - begin.x) < 8 && (2*end.y - begin.y) < 8 && currentBoard[2*end.y - begin.y][2*end.x - begin.x] == 0)
               return Movement::MURDER;
           }
         }
@@ -134,7 +134,7 @@ Movement CheckersGame::validateMovement(short currentBoard[8][8], Turn currentTu
             return Movement::SIMPLE;
           }
           else if(currentBoard[end.y][end.x] == 1){//if end is occupated by a human's token
-            if((end.x - begin.x) >= 0 && (end.y - begin.y) >= 0 && (end.x - begin.x) < 8 && (end.y - begin.y) < 8 && currentBoard[2*end.y - begin.y][2*end.x - begin.x] == 0)
+            if((2*end.x - begin.x) >= 0 && (2*end.y - begin.y) >= 0 && (2*end.x - begin.x) < 8 && (2*end.y - begin.y) < 8 && currentBoard[2*end.y - begin.y][2*end.x - begin.x] == 0)
               return Movement::MURDER;
           }
         }
@@ -147,7 +147,6 @@ Movement CheckersGame::validateMovement(short currentBoard[8][8], Turn currentTu
 void CheckersGame::confirmMovement(short currentBoard[8][8], Movement moveType, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end){
   sf::Vector2<int8_t> distance = end - begin;
   short token = (distance.y > 0)?-1:1;
-  int8_t* tokenCount = (token == -1)?&humanTokenCount:&botTokenCount;
   switch(moveType){
     case Movement::ILLEGAL:
       return;
@@ -157,9 +156,8 @@ void CheckersGame::confirmMovement(short currentBoard[8][8], Movement moveType, 
       break;
     case Movement::MURDER:
       currentBoard[begin.y][begin.x] = 0;
-      currentBoard[begin.y + distance.y/2][begin.x + distance.x/2] = 0;
-      currentBoard[end.y][end.x] = token;
-      --(*tokenCount);
+      currentBoard[end.y][end.x] = 0;
+      currentBoard[end.y + distance.y][end.x + distance.x] = token;
       break;
   }
 }
@@ -179,6 +177,8 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
           Movement moveType = validateMovement(mboard, Turn::HUMAN, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(-1,-1));
           confirmMovement(mboard, moveType, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(-1,-1));
           if(moveType != Movement::ILLEGAL){
+            if(moveType == Movement::MURDER)
+              --botTokenCount;
             gameState = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
           }
@@ -187,6 +187,8 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
           Movement moveType = validateMovement(mboard, Turn::HUMAN, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(1,-1));
           confirmMovement(mboard, moveType, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(1,-1));
           if(moveType != Movement::ILLEGAL){
+            if(moveType == Movement::MURDER)
+              --botTokenCount;
             gameState = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
           }
@@ -209,6 +211,13 @@ int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameStat
     int8_t maxEvaluation = std::numeric_limits<int8_t>::min();
     while(getNextSimulation(currentTurn, currentGameState)){
       std::cout << "BOT EVAL HUMAN\n";
+      for(std::size_t y = 0; y < 8; ++y){
+        for(std::size_t x = 0; x < 8; ++x){
+          std::cout << currentGameState->successors.back()->mSimulationBoard[y][x] << ' ';
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "BOT EVAL HUMAN\n";
       currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::HUMAN, alpha, beta);
       maxEvaluation = std::max(currentGameState->successors.back()->value, maxEvaluation);
       alpha = std::max(alpha, currentGameState->successors.back()->value);
@@ -220,6 +229,13 @@ int8_t CheckersGame::minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameStat
   else if(currentTurn == Turn::HUMAN){//MIN
     int8_t minEvaluation = std::numeric_limits<int8_t>::max();
     while(getNextSimulation(currentTurn, currentGameState)){
+      std::cout << "HUMAN EVAL BOT\n";
+      for(std::size_t y = 0; y < 8; ++y){
+        for(std::size_t x = 0; x < 8; ++x){
+          std::cout << currentGameState->successors.back()->mSimulationBoard[y][x] << ' ';
+        }
+        std::cout << std::endl;
+      }
       std::cout << "HUMAN EVAL BOT\n";
       currentGameState->successors.back()->value = minmaxAlphaBeta(currentGameState->successors.back(), depth - 1, Turn::BOT, alpha, beta);
       minEvaluation = std::max(currentGameState->successors.back()->value, minEvaluation);
@@ -259,6 +275,12 @@ bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatu
               currentGameState->auxidx = x;
               currentGameState->successors.push_back(std::make_shared<GameStatus>(currentGameState->mSimulationBoard));
               confirmMovement(currentGameState->successors.back()->mSimulationBoard, moveType, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + dy));
+              if(moveType == Movement::MURDER){
+                if(token == 1)
+                  --currentGameState->successors.back()->botTokenCount;
+                else
+                  --currentGameState->successors.back()->humanTokenCount;
+              }
               return true;
             }
             --x;
@@ -270,6 +292,12 @@ bool CheckersGame::getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatu
               currentGameState->auxidx = x + 1;
               currentGameState->successors.push_back(std::make_shared<GameStatus>(currentGameState->mSimulationBoard));
               confirmMovement(currentGameState->successors.back()->mSimulationBoard, moveType, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + dy));
+              if(moveType == Movement::MURDER){
+                if(token == 1)
+                  --currentGameState->successors.back()->botTokenCount;
+                else
+                  --currentGameState->successors.back()->humanTokenCount;
+              }
               return true;
             }
           }
