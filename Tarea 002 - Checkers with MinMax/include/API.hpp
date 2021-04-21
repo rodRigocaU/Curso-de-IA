@@ -102,10 +102,11 @@ void CheckersGame::setInitialPositions(){
     for(std::size_t x = 0; x < 8; ++x){
       mboard[y][x] = backup[y][x];
     }
+  botMovementTimer.restart();
 }
 //#tokens H B, turn, depth, depth in words, initial turn 
 void CheckersGame::displayHUDInfo(sf::RenderWindow& window){
-  std::string rawHUDInfo = "A.I. process delay: " + std::to_string(botThinkDelay.asSeconds()) + " seconds.\n";
+  std::string rawHUDInfo = "A.I. process delay: " + ((botThinkDelay.asSeconds() > 0)?std::to_string(botThinkDelay.asSeconds()) + " seconds":"NoWait") + ".\n";
   rawHUDInfo += "A.I. depth: <" + std::to_string(treeDepth) + ">\t";
   rawHUDInfo += "Game Level: [";
   switch(treeDepth){
@@ -246,7 +247,6 @@ void CheckersGame::confirmMovement(short currentBoard[8][8], Movement moveType, 
 void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
   switch(gameTurn){
     case Turn::HUMAN:
-      botMovementTimer.restart();
       if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && humanTokenCount > 0){
         currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
         sf::Vector2i mousePosition = sf::Vector2i(sf::Mouse::getPosition(window).x / int(tokenSprite.getGlobalBounds().width), sf::Mouse::getPosition(window).y / int(tokenSprite.getGlobalBounds().height));
@@ -278,6 +278,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
           }
         }
       }
+      botMovementTimer.restart();
       break;
     case Turn::BOT:
       if(botMovementTimer.getElapsedTime() >= botThinkDelay){
@@ -397,23 +398,22 @@ bool CheckersGame::gameOver(Turn currentTurn, std::shared_ptr<GameStatus> curren
       return true;
     bool somethingToDoH = false;
     bool somethingToDoB = false;
+    std::size_t maxHumanY = 0 , minBotY = 8;
     for(std::size_t y = 0; y < 8; ++y)
       for(std::size_t x = 0; x < 8; ++x){
-        if(currentGameState->mSimulationBoard[y][x] == 1 && currentTurn == Turn::HUMAN){
+        if(currentGameState->mSimulationBoard[y][x] == 1){
+          maxHumanY = std::max(maxHumanY, y);
           somethingToDoH = somethingToDoH || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y - 1)) != Movement::ILLEGAL);
           somethingToDoH = somethingToDoH || (validateMovement(currentGameState->mSimulationBoard, Turn::HUMAN, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y - 1)) != Movement::ILLEGAL);
-          if(somethingToDoH){
-            return false;
-          }
         }
-        else if(currentGameState->mSimulationBoard[y][x] == 2 && currentTurn == Turn::BOT){
+        else if(currentGameState->mSimulationBoard[y][x] == 2){
+          minBotY = std::min(minBotY, y);
           somethingToDoB = somethingToDoB || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x - 1, y + 1)) != Movement::ILLEGAL);
           somethingToDoB = somethingToDoB || (validateMovement(currentGameState->mSimulationBoard, Turn::BOT, sf::Vector2<int8_t>(x,y), sf::Vector2<int8_t>(x + 1, y + 1)) != Movement::ILLEGAL);
-          if(somethingToDoB){
-            return false;
-          }
         }
       }
+    if(minBotY < maxHumanY && ((currentTurn == Turn::HUMAN && somethingToDoH) || (currentTurn == Turn::BOT && somethingToDoB)))
+      return false;
     return true;
   }
   return false;
@@ -429,6 +429,7 @@ void CheckersGame::start(){
   std::cout << "o C : Change starter player for the next game between A.I. and HUMAN.\n";
   std::cout << "o F : Finish the current game.\n";
   std::cout << "o R : Restart the game with the new configurations.\n";
+  std::cout << "o Left Key and Right key : Increase or decrease the delay of A.I.'s response.\n";
   std::cout << "o S : Get a window capture saved in ../screenshots.\n";
 
   sf::RenderWindow app(sf::VideoMode(617,617 + SIZE_HUD), "Checkers Game");
@@ -483,6 +484,12 @@ void CheckersGame::start(){
     }
     else{
       onControlsUpdate(app);
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+      botThinkDelay = sf::seconds(botThinkDelay.asSeconds() - 0.01);
+    }
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+      botThinkDelay = sf::seconds(botThinkDelay.asSeconds() + 0.01);
     }
     displayHUDInfo(app);
     app.display();
