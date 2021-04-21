@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 
@@ -56,7 +57,7 @@ private:
                         0, 1, 0, 1, 0, 1, 0, 1 };
   short mboard[8][8] = {0};
   int8_t humanTokenCount, botTokenCount;
-  Turn gameTurn;
+  Turn gameTurn, startTurn = Turn::HUMAN;
   bool gameFinished;
 
   uint32_t treeDepth;
@@ -65,11 +66,14 @@ private:
   sf::Vector2<int8_t> currentHumanTokenSelected;
   sf::Texture tokenTexture, board;
   sf::Sprite tokenSprite;
+  sf::Font arialFont;
+  sf::Text hudDisplayedInfo, winnerDisplayed;
 
   void setInitialPositions();
   void confirmMovement(short currentBoard[8][8], Movement moveType, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end);
   Movement validateMovement(short currentBoard[8][8], Turn currentTurn, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end);
   void onControlsUpdate(sf::RenderWindow& window);
+  void onHUDControlsUpdate(const sf::Event& event);
   int8_t minmaxAlphaBeta(std::shared_ptr<GameStatus> currentGameState, uint32_t depth, Turn currentTurn, 
                       int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max());
   bool getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
@@ -84,8 +88,7 @@ public:
 //#################################################################
 
 void CheckersGame::setInitialPositions(){
-  gameTurn = Turn::BOT;
-  treeDepth = 7;
+  gameTurn = startTurn;
   gameFinished = false;
   tokenSprite.setTexture(tokenTexture);
   tokenSprite.setScale(0.15,0.15);
@@ -94,6 +97,15 @@ void CheckersGame::setInitialPositions(){
     for(std::size_t x = 0; x < 8; ++x){
       mboard[y][x] = backup[y][x];
     }
+  std::cout << "+-----------------------------------------+\n";
+  std::cout << "|           CHECKERS GAME CONTROLS        |\n";
+  std::cout << "+-----------------------------------------+\n";
+  std::cout << "o Mouse Left Click : Select any token of yours(HUMAN -> Red, A.I. -> Black).\n";
+  std::cout << "o A and D : Move the selected token in left(A) or right(D) direction.\n";
+  std::cout << "o Add(+) and Substract(-) : Increase or decrease the depth of the A.I., the limit is 7 to make safe this game.\n";
+  std::cout << "o C : Change starter player for the next game between A.I. and HUMAN.\n";
+  std::cout << "o F : Finish the current game.\n";
+  std::cout << "o R : Restart the game with the new configurations.\n";
 }
 
 void CheckersGame::displayGame(sf::RenderWindow& window){
@@ -116,6 +128,30 @@ void CheckersGame::displayGame(sf::RenderWindow& window){
         }
       }
     }
+}
+
+void CheckersGame::onHUDControlsUpdate(const sf::Event& event){
+  if(event.type == sf::Event::KeyPressed){
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Add)){
+      ++treeDepth;
+      if(treeDepth > 7)
+        treeDepth = 7;
+    }
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Subtract)){
+      --treeDepth;
+      if(treeDepth > 7)
+        treeDepth = 1;
+    }
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::C)){
+      startTurn = (startTurn == Turn::HUMAN)?Turn::BOT:Turn::HUMAN;
+    }
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::F)){
+      gameFinished = true;
+    }
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
+      setInitialPositions();
+    }
+  }
 }
 
 Movement CheckersGame::validateMovement(short currentBoard[8][8], Turn currentTurn, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end){
@@ -177,7 +213,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
         }
       }
       if(currentHumanTokenSelected != sf::Vector2<int8_t>(-1,-1)){
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
           Movement moveType = validateMovement(mboard, Turn::HUMAN, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(-1,-1));
           confirmMovement(mboard, moveType, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(-1,-1));
           if(moveType != Movement::ILLEGAL){
@@ -188,7 +224,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
             gameFinished = gameOver(gameTurn, std::make_shared<GameStatus>(mboard));
           }
         }
-        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
           Movement moveType = validateMovement(mboard, Turn::HUMAN, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(1,-1));
           confirmMovement(mboard, moveType, currentHumanTokenSelected, currentHumanTokenSelected + sf::Vector2<int8_t>(1,-1));
           if(moveType != Movement::ILLEGAL){
@@ -203,17 +239,13 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
     case Turn::BOT:
       root = std::make_shared<GameStatus>(mboard);
       minmaxAlphaBeta(root, treeDepth, gameTurn);
-      //std::cout << root->successors.size() << std::endl;
       if(choosenBotMovement != nullptr){
-        std::cout << "choosen value: " << int(choosenBotMovement->value) << std::endl;
         humanTokenCount = choosenBotMovement->humanTokenCount;
         botTokenCount = choosenBotMovement->botTokenCount;
         for(std::size_t y = 0; y < 8; ++y)
           for(std::size_t x = 0; x < 8; ++x){
             mboard[y][x] = choosenBotMovement->mSimulationBoard[y][x];
           }
-        std::cout << "humano tiene: " << int(humanTokenCount) << " fichas\n";
-        std::cout << "bot tiene: " << int(botTokenCount) << " fichas\n";
       }
       gameTurn = Turn::HUMAN;
       gameFinished = gameOver(gameTurn, choosenBotMovement);
@@ -347,6 +379,16 @@ void CheckersGame::start(){
   app.setFramerateLimit(60);
 
   sf::Event action;
+  treeDepth = 1;
+
+  arialFont.loadFromFile("assets/arial.ttf");
+  winnerDisplayed.setFont(arialFont);
+  winnerDisplayed.setStyle(sf::Text::Bold);
+  winnerDisplayed.setCharacterSize(40);
+  winnerDisplayed.setOutlineThickness(5);
+  winnerDisplayed.setOutlineColor(sf::Color::Black);
+  winnerDisplayed.setFillColor(sf::Color::Green);
+  hudDisplayedInfo.setFont(arialFont);
 
   board.loadFromFile("assets/Board.jpg");
   tokenTexture.loadFromFile("assets/CheckersToken.png");
@@ -355,21 +397,29 @@ void CheckersGame::start(){
                             (app.getSize().y - SIZE_HUD) / displayableBoard.getGlobalBounds().getSize().y);
   
   setInitialPositions();
+
   while(app.isOpen()){
+    app.clear();
     while(app.pollEvent(action)){
       if(action.type == sf::Event::Closed){
         app.close();
       }
+      onHUDControlsUpdate(action);
     }
+    app.draw(displayableBoard);
+    displayGame(app);
     if(gameFinished){
-      std::cout << "GG" << std::endl;
+      if(int(botTokenCount) == int(humanTokenCount))
+        winnerDisplayed.setString("Tie");
+      else if(int(botTokenCount) > int(humanTokenCount))
+        winnerDisplayed.setString("AI Wins");
+      else if(int(botTokenCount) < int(humanTokenCount))
+        winnerDisplayed.setString("Human Wins");
+      app.draw(winnerDisplayed);
     }
     else{
       onControlsUpdate(app);
     }
-    app.clear();
-    app.draw(displayableBoard);
-    displayGame(app);
     app.display();
   }
 }
