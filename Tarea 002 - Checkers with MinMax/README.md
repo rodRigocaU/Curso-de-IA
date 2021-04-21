@@ -18,11 +18,13 @@
 - `mkdir build`
 - `cmake -G "MinGW Makefiles" -B "build"`
 - `cd build`
+- `mingw32-make`
 
 ### Linux
 - `mkdir -p build`
 - `cmake -B "build"`
 - `cd build`
+- `make`
 
 ## Ejecución:
 - `./Checkers`

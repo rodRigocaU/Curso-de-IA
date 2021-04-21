@@ -21,12 +21,14 @@ Programa interactivo que permite visualizar los algoritmos de búsqueda de camin
 - `mkdir build`
 - `cmake -G "MinGW Makefiles" -B "build"`
 - `cd build`
+- `mingw32-make`
 
 ### Linux
 - `cd LaboratorioBusquedas`
 - `mkdir -p build`
 - `cmake -B "build"`
 - `cd build`
+- `make`
 
 ## Ejecución:
 - `./PathFinder`
