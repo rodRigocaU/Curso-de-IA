@@ -1,5 +1,7 @@
 # **Algoritmo Genetico para funciones Matematicas (Selección Ruleta , Representación Binaria )**
 
+## Última fecha de modificación: 18/04/2021
+
 ## Integrantes que participaron:
 
 - Luis Alexin Salazar Marroquin

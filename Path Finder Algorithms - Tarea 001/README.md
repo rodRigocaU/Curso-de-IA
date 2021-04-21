@@ -12,12 +12,20 @@ Programa interactivo que permite visualizar los algoritmos de búsqueda de camin
 - Rodrigo Andre Cayro Cuadros
 
 ## Requerimientos:
+- CMake version 3.15
 - SFML 2.5.1 instalado
 
 ## Instalación:
+### Windows
 - `cd LaboratorioBusquedas`
 - `mkdir build`
-- `cmake -G <Generador> -B "build"`
+- `cmake -G "MinGW Makefiles" -B "build"`
+- `cd build`
+
+### Linux
+- `cd LaboratorioBusquedas`
+- `mkdir -p build`
+- `cmake -B "build"`
 - `cd build`
 
 ## Ejecución:
