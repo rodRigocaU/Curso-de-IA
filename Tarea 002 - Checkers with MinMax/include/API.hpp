@@ -8,10 +8,13 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Thread.hpp>
 
 namespace AI{
 
 std::size_t fileCounter = 1;
+
+const int dispersionFactor = 30;
 
 enum Movement{ILLEGAL, SIMPLE, MURDER};
 
@@ -66,14 +69,16 @@ private:
   std::shared_ptr<GameStatus> root, choosenBotMovement;
 
   sf::Vector2<int8_t> currentHumanTokenSelected;
+  sf::Vector2i gameWindowPosition, treeVizWindowPosition;
   sf::Texture tokenTexture, board;
   sf::Sprite tokenSprite;
   sf::Time botThinkDelay;
   sf::Clock botMovementTimer;
-  sf::Font arialFont;
-  sf::Text hudDisplayedInfo, winnerDisplayed;
+  sf::Font arialFont, treeVizFont;
+  sf::Text hudDisplayedInfo, winnerDisplayed, treeVizNodeContent, cameraPosInfo;
 
   void setInitialPositions();
+  void onTreeVizThread();
   void displayHUDInfo(sf::RenderWindow& window);
   void confirmMovement(short currentBoard[8][8], Movement moveType, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end);
   Movement validateMovement(short currentBoard[8][8], Turn currentTurn, const sf::Vector2<int8_t>& begin, const sf::Vector2<int8_t>& end);
@@ -83,6 +88,8 @@ private:
                       int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max());
   bool getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
   void displayGame(sf::RenderWindow& window);
+  void readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window,const sf::Vector2<float> position = sf::Vector2<float>(0,0));
+  void printNode(std::shared_ptr<GameStatus> node, Turn currentTurn, const sf::Vector2<float>& position, sf::RenderWindow& window);
   bool gameOver(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
 public:
   void start();
@@ -283,7 +290,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
     case Turn::BOT:
       if(botMovementTimer.getElapsedTime() >= botThinkDelay){
         root = std::make_shared<GameStatus>(mboard);
-        minmaxAlphaBeta(root, treeDepth, gameTurn);
+        root->value = minmaxAlphaBeta(root, treeDepth, gameTurn);
         if(choosenBotMovement != nullptr){
           humanTokenCount = choosenBotMovement->humanTokenCount;
           botTokenCount = choosenBotMovement->botTokenCount;
@@ -420,9 +427,11 @@ bool CheckersGame::gameOver(Turn currentTurn, std::shared_ptr<GameStatus> curren
 }
 
 void CheckersGame::start(){
-  std::cout << "+-----------------------------------------+\n";
-  std::cout << "|           CHECKERS GAME CONTROLS        |\n";
-  std::cout << "+-----------------------------------------+\n";
+  gameWindowPosition = sf::Vector2i(160,80);
+  treeVizWindowPosition = sf::Vector2i(gameWindowPosition.x + 622, 80);
+  std::cout << "+------------------------------------------+\n";
+  std::cout << "|           CHECKERS GAME CONTROLS         |\n";
+  std::cout << "+------------------------------------------+\n";
   std::cout << "o Mouse Left Click : Select any token of yours(HUMAN -> Red, A.I. -> Black).\n";
   std::cout << "o A and D : Move the selected token in left(A) or right(D) direction.\n";
   std::cout << "o Add(+) and Substract(-) : Increase or decrease the depth of the A.I., the limit is 7 to make safe this game.\n";
@@ -433,8 +442,8 @@ void CheckersGame::start(){
   std::cout << "o S : Get a window capture saved in ../screenshots.\n";
 
   sf::RenderWindow app(sf::VideoMode(617,617 + SIZE_HUD), "Checkers Game");
+  app.setPosition(gameWindowPosition);
   app.setFramerateLimit(60);
-
   sf::Event action;
   treeDepth = 1;
   botThinkDelay = sf::seconds(0.5f);
@@ -461,6 +470,9 @@ void CheckersGame::start(){
   
   setInitialPositions();
 
+  sf::Thread treeViz(&CheckersGame::onTreeVizThread, this);
+  treeViz.launch();
+
   while(app.isOpen()){
     app.clear();
     app.draw(displayableBoard);
@@ -482,7 +494,7 @@ void CheckersGame::start(){
       winnerDisplayed.setPosition(308.5, 308.5);
       app.draw(winnerDisplayed);
     }
-    else{
+    else if(app.hasFocus()){
       onControlsUpdate(app);
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
@@ -497,7 +509,99 @@ void CheckersGame::start(){
       if(action.type == sf::Event::Closed){
         app.close();
       }
-      onHUDControlsUpdate(app, action);
+      if(app.hasFocus())
+        onHUDControlsUpdate(app, action);
+    }
+  }
+  treeViz.terminate();
+}
+
+void CheckersGame::printNode(std::shared_ptr<GameStatus> node, Turn currentTurn, const sf::Vector2<float>& position, sf::RenderWindow& window){
+  if(node != nullptr){
+    sf::CircleShape nodeBody(15);
+    nodeBody.setOrigin(15.f, 15.f);
+    if(currentTurn == Turn::HUMAN){
+      nodeBody.setFillColor(sf::Color::Red);
+    }
+    else{
+      nodeBody.setFillColor(sf::Color::Black);
+    }
+    nodeBody.setPosition(position);
+    window.draw(nodeBody);
+    treeVizNodeContent.setString(std::to_string(node->value));
+    treeVizNodeContent.setOrigin(treeVizNodeContent.getLocalBounds().width / 2, treeVizNodeContent.getLocalBounds().height);
+    treeVizNodeContent.setPosition(position);
+    window.draw(treeVizNodeContent);
+  }
+}
+
+void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window, const sf::Vector2<float> position){
+  if(node != nullptr){
+    if(!node->successors.empty()){
+      float dispersion = position.x - node->successors.size() * dispersionFactor * treeDepth + position.y;
+      for(std::shared_ptr<GameStatus>& successor : node->successors){
+        sf::Vertex line[] = {sf::Vertex(position),sf::Vertex(position + sf::Vector2<float>(dispersion, position.y + 60))};
+        window.draw(line, 2, sf::Lines);
+        readPrunedMinMaxTree(successor, (currentTurn == Turn::HUMAN)?Turn::BOT:Turn::HUMAN, window, position + sf::Vector2<float>(dispersion, position.y + 60));
+        dispersion += (dispersionFactor * 2 * treeDepth - position.y);
+      }
+    }
+    printNode(node, currentTurn, position, window);
+  }
+}
+
+void CheckersGame::onTreeVizThread(){
+  sf::RenderWindow app2(sf::VideoMode(617,617), "Inside the A.I.");
+  app2.setPosition(treeVizWindowPosition);
+  app2.setVerticalSyncEnabled(1);
+  sf::View camera = app2.getDefaultView(), camHUD = app2.getDefaultView();
+  camera.setCenter(0, 0);
+  sf::Event action;
+
+  treeVizFont.loadFromFile("assets/arial.ttf");
+
+  treeVizNodeContent.setFont(treeVizFont);
+  treeVizNodeContent.setStyle(sf::Text::Bold);
+  treeVizNodeContent.setCharacterSize(20);
+  treeVizNodeContent.setFillColor(sf::Color::White);
+
+  cameraPosInfo.setFont(treeVizFont);
+  cameraPosInfo.setStyle(sf::Text::Bold);
+  cameraPosInfo.setCharacterSize(20);
+  cameraPosInfo.setOrigin(-5.f, -5.f);
+  cameraPosInfo.setFillColor(sf::Color(25,255,50));
+
+  std::string rawCameraPosInfo;
+
+  while(app2.isOpen()){
+    app2.clear(sf::Color(50,50,50));
+    app2.setView(camHUD);
+    rawCameraPosInfo = "Current Camera Position: [" + std::to_string(camera.getCenter().x) + ", " + std::to_string(camera.getCenter().y) + "]";
+    cameraPosInfo.setString(rawCameraPosInfo);
+    app2.draw(cameraPosInfo);
+    app2.setView(camera);
+    readPrunedMinMaxTree(root, Turn::BOT, app2);
+    app2.display();
+    if(app2.hasFocus()){
+      double size = camera.getSize().x * 0.006;
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        camera.move(-2.5*size, 0);
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        camera.move(2.5*size, 0);
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        camera.move(0, -2.5*size);
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        camera.move(0, 2.5*size);
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::Add))
+        camera.zoom(0.95);
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::Subtract))
+        camera.zoom(1.02);
+    }
+    while(app2.pollEvent(action)){
+      if(action.type == sf::Event::Closed){
+        app2.close();
+        exit(0);
+      }
     }
   }
 }
