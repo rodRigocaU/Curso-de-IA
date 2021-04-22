@@ -263,9 +263,10 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
       if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && humanTokenCount > 0){
         currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
         sf::Vector2i mousePosition = sf::Vector2i(sf::Mouse::getPosition(window).x / int(tokenSprite.getGlobalBounds().width), sf::Mouse::getPosition(window).y / int(tokenSprite.getGlobalBounds().height));
-        if(mboard[mousePosition.y][mousePosition.x] == 1){
-          currentHumanTokenSelected = sf::Vector2<int8_t>(int8_t(mousePosition.x), int8_t(mousePosition.y));
-        }
+        if(mousePosition.x >= 0 && mousePosition.x < 8 && mousePosition.y >= 0 && mousePosition.y < 8)
+          if(mboard[mousePosition.y][mousePosition.x] == 1){
+            currentHumanTokenSelected = sf::Vector2<int8_t>(int8_t(mousePosition.x), int8_t(mousePosition.y));
+          }
       }
       if(currentHumanTokenSelected != sf::Vector2<int8_t>(-1,-1)){
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
