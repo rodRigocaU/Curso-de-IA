@@ -12,8 +12,6 @@
 
 namespace AI{
 
-sf::Mutex mutex;
-
 std::size_t fileCounter = 1;
 
 const int dispersionFactor = 30;
@@ -108,8 +106,8 @@ public:
 
 void CheckersGame::setInitialPositions(){
   gameTurn = startTurn;
-  treeWasGenerated = false;
   gameFinished = false;
+  treeWasGenerated = false;
   tokenSprite.setTexture(tokenTexture);
   tokenSprite.setScale(0.15,0.15);
   humanTokenCount = botTokenCount = 12;
@@ -279,7 +277,6 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
             gameTurn = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
             gameFinished = gameOver(gameTurn, std::make_shared<GameStatus>(mboard));
-            treeWasGenerated = false;
           }
         }
         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
@@ -291,15 +288,13 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
             gameTurn = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
             gameFinished = gameOver(gameTurn, std::make_shared<GameStatus>(mboard));
-            treeWasGenerated = false;
           }
         }
       }
       botMovementTimer.restart();
       break;
     case Turn::BOT:
-      mutex.lock();
-      if(botMovementTimer.getElapsedTime() >= botThinkDelay){
+      if(botMovementTimer.getElapsedTime() >= botThinkDelay && !treeWasGenerated){
         root.reset();
         root = std::make_shared<GameStatus>(mboard);
         root->value = minmaxAlphaBeta(root, treeDepth, gameTurn);
@@ -316,7 +311,6 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
         choosenBotMovement.reset();
         treeWasGenerated = true;
       }
-      mutex.unlock();
       break;
   }
 }
@@ -479,8 +473,8 @@ void CheckersGame::start(){
   board.loadFromFile("assets/Board.jpg");
   tokenTexture.loadFromFile("assets/CheckersToken.png");
   sf::Sprite displayableBoard; displayableBoard.setTexture(board);
-  displayableBoard.setScale(app.getSize().x / displayableBoard.getGlobalBounds().getSize().x,
-                            (app.getSize().y - SIZE_HUD) / displayableBoard.getGlobalBounds().getSize().y);
+  displayableBoard.setScale(app.getSize().x / displayableBoard.getGlobalBounds().width,
+                            (app.getSize().y - SIZE_HUD) / displayableBoard.getGlobalBounds().height);
   
   setInitialPositions();
 
@@ -552,8 +546,8 @@ void CheckersGame::printNode(std::shared_ptr<GameStatus> node, Turn currentTurn,
 void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, sf::RenderWindow& window, const sf::Vector2<float> position){
   if(node != nullptr){
     std::size_t idx = 0;
-    if(idx < node->successors.size())
-      for(; idx < node->successors.size() / 2; ++idx){
+    if(!node->successors.empty())
+      for(; idx < std::size_t((node->successors.size() / 2)?(node->successors.size() / 2):node->successors.size()); ++idx){
         std::shared_ptr<GameStatus>& successor = node->successors[idx];
         readPrunedMinMaxTree(successor, window, position + sf::Vector2<float>(0, 80 * treeDepth));
       }
@@ -562,7 +556,7 @@ void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, sf::Re
     if(node == root)
       camera.setCenter(node->position);
     if(idx < node->successors.size())
-      for(std::size_t idx = node->successors.size() / 2; idx < node->successors.size(); ++idx){
+      for(; idx < node->successors.size(); ++idx){
         std::shared_ptr<GameStatus>& successor = node->successors[idx];
         readPrunedMinMaxTree(successor, window, position + sf::Vector2<float>(0, 80 * treeDepth));
       }
@@ -605,18 +599,18 @@ void CheckersGame::onTreeVizThread(){
   cameraPosInfo.setFillColor(sf::Color(25,255,50));
 
   std::string rawCameraPosInfo;
+  std::shared_ptr<GameStatus> tempRoot;
 
   while(app2.isOpen()){
     app2.clear(sf::Color(50,50,50));
     app2.setView(camera);
-    initialPositionTreeViz = 0;
     if(treeWasGenerated){
-      mutex.lock();
+      initialPositionTreeViz = 0;
       readPrunedMinMaxTree(root, app2);
+      tempRoot = root;
       treeWasGenerated = false;
-      mutex.unlock();
     }
-    printPrunedMinMaxTree(root, Turn::BOT, app2);
+    printPrunedMinMaxTree(tempRoot, Turn::BOT, app2);
     app2.setView(camHUD);
     rawCameraPosInfo = "Current Camera Position: [" + std::to_string(camera.getCenter().x) + ", " + std::to_string(camera.getCenter().y) + "]";
     cameraPosInfo.setString(rawCameraPosInfo);
