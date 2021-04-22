@@ -12,6 +12,8 @@
 
 namespace AI{
 
+sf::Mutex mutex;
+
 std::size_t fileCounter = 1;
 
 const int dispersionFactor = 30;
@@ -25,6 +27,7 @@ enum Direction{LEFT, RIGHT};
 class CheckersGame{
 private:
   const uint32_t SIZE_HUD = 155;
+  int initialPositionTreeViz = 0;
   struct GameStatus{
     int8_t botTokenCount, humanTokenCount;
     int8_t value;
@@ -32,6 +35,7 @@ private:
     std::size_t auxidx, auxidy;
     short mSimulationBoard[8][8] = {0};
     std::vector<std::shared_ptr<GameStatus>> successors;
+    sf::Vector2<float> position;
 
     GameStatus(short currentBoard[8][8]){
       botTokenCount = humanTokenCount = 0;
@@ -64,6 +68,7 @@ private:
   int8_t humanTokenCount, botTokenCount;
   Turn gameTurn, startTurn = Turn::HUMAN;
   bool gameFinished;
+  bool treeWasGenerated;
 
   uint32_t treeDepth;
   std::shared_ptr<GameStatus> root, choosenBotMovement;
@@ -76,6 +81,7 @@ private:
   sf::Clock botMovementTimer;
   sf::Font arialFont, treeVizFont;
   sf::Text hudDisplayedInfo, winnerDisplayed, treeVizNodeContent, cameraPosInfo;
+  sf::View camera;
 
   void setInitialPositions();
   void onTreeVizThread();
@@ -88,7 +94,8 @@ private:
                       int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max());
   bool getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
   void displayGame(sf::RenderWindow& window);
-  void readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window, uint32_t depth, const sf::Vector2<float> position = sf::Vector2<float>(0,0));
+  void readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, sf::RenderWindow& window, const sf::Vector2<float> position = sf::Vector2<float>(0,0));
+  void printPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window);
   void printNode(std::shared_ptr<GameStatus> node, Turn currentTurn, const sf::Vector2<float>& position, sf::RenderWindow& window);
   bool gameOver(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
 public:
@@ -101,6 +108,7 @@ public:
 
 void CheckersGame::setInitialPositions(){
   gameTurn = startTurn;
+  treeWasGenerated = false;
   gameFinished = false;
   tokenSprite.setTexture(tokenTexture);
   tokenSprite.setScale(0.15,0.15);
@@ -271,6 +279,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
             gameTurn = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
             gameFinished = gameOver(gameTurn, std::make_shared<GameStatus>(mboard));
+            treeWasGenerated = false;
           }
         }
         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
@@ -282,12 +291,14 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
             gameTurn = Turn::BOT;   
             currentHumanTokenSelected = sf::Vector2<int8_t>(-1,-1);
             gameFinished = gameOver(gameTurn, std::make_shared<GameStatus>(mboard));
+            treeWasGenerated = false;
           }
         }
       }
       botMovementTimer.restart();
       break;
     case Turn::BOT:
+      mutex.lock();
       if(botMovementTimer.getElapsedTime() >= botThinkDelay){
         root.reset();
         root = std::make_shared<GameStatus>(mboard);
@@ -303,7 +314,9 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
         gameTurn = Turn::HUMAN;
         gameFinished = gameOver(gameTurn, choosenBotMovement);
         choosenBotMovement.reset();
+        treeWasGenerated = true;
       }
+      mutex.unlock();
       break;
   }
 }
@@ -491,7 +504,7 @@ void CheckersGame::start(){
         winnerDisplayed.setFillColor(sf::Color::Green);
         winnerDisplayed.setString("Human Wins!!!");
       }
-      winnerDisplayed.setOrigin(winnerDisplayed.getGlobalBounds().getSize().x/2, winnerDisplayed.getGlobalBounds().getSize().y/2);
+      winnerDisplayed.setOrigin(winnerDisplayed.getGlobalBounds().width/2, winnerDisplayed.getGlobalBounds().height/2);
       winnerDisplayed.setPosition(308.5, 308.5);
       app.draw(winnerDisplayed);
     }
@@ -527,27 +540,45 @@ void CheckersGame::printNode(std::shared_ptr<GameStatus> node, Turn currentTurn,
     else{
       nodeBody.setFillColor(sf::Color::Black);
     }
-    nodeBody.setPosition(position);
+    nodeBody.setPosition(node->position);
     window.draw(nodeBody);
     treeVizNodeContent.setString(std::to_string(node->value));
     treeVizNodeContent.setOrigin(treeVizNodeContent.getLocalBounds().width / 2, treeVizNodeContent.getLocalBounds().height);
-    treeVizNodeContent.setPosition(position);
+    treeVizNodeContent.setPosition(node->position);
     window.draw(treeVizNodeContent);
   }
 }
 
-void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window, uint32_t depth, const sf::Vector2<float> position){
+void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, sf::RenderWindow& window, const sf::Vector2<float> position){
+  if(node != nullptr){
+    std::size_t idx = 0;
+    if(idx < node->successors.size())
+      for(; idx < node->successors.size() / 2; ++idx){
+        std::shared_ptr<GameStatus>& successor = node->successors[idx];
+        readPrunedMinMaxTree(successor, window, position + sf::Vector2<float>(0, 80 * treeDepth));
+      }
+    ++initialPositionTreeViz;
+    node->position = position + sf::Vector2<float>((initialPositionTreeViz) * dispersionFactor, 0);
+    if(node == root)
+      camera.setCenter(node->position);
+    if(idx < node->successors.size())
+      for(std::size_t idx = node->successors.size() / 2; idx < node->successors.size(); ++idx){
+        std::shared_ptr<GameStatus>& successor = node->successors[idx];
+        readPrunedMinMaxTree(successor, window, position + sf::Vector2<float>(0, 80 * treeDepth));
+      }
+  }
+}
+
+void CheckersGame::printPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window){
   if(node != nullptr){
     if(!node->successors.empty()){
-      float dispersion = position.x - node->successors.size() * dispersionFactor * (8 - depth);
       for(std::shared_ptr<GameStatus>& successor : node->successors){
-        sf::Vertex line[] = {sf::Vertex(position),sf::Vertex(position + sf::Vector2<float>(dispersion, position.y + 60))};
+        sf::Vertex line[] = {sf::Vertex(node->position), sf::Vertex(successor->position)};
         window.draw(line, 2, sf::Lines);
-        readPrunedMinMaxTree(successor, (currentTurn == Turn::HUMAN)?Turn::BOT:Turn::HUMAN, window, depth - 1, position + sf::Vector2<float>(dispersion, position.y + 60));
-        dispersion += (dispersionFactor * 2 * (8 - depth));
+        printPrunedMinMaxTree(successor, (currentTurn == Turn::HUMAN)?Turn::BOT:Turn::HUMAN, window);
       }
     }
-    printNode(node, currentTurn, position, window);
+    printNode(node, currentTurn, node->position, window);
   }
 }
 
@@ -555,7 +586,8 @@ void CheckersGame::onTreeVizThread(){
   sf::RenderWindow app2(sf::VideoMode(617 + SIZE_HUD, 617 + SIZE_HUD), "Inside the A.I.");
   app2.setPosition(treeVizWindowPosition);
   app2.setVerticalSyncEnabled(1);
-  sf::View camera = app2.getDefaultView(), camHUD = app2.getDefaultView();
+  camera = app2.getDefaultView();
+  sf::View camHUD = app2.getDefaultView();
   camera.setCenter(0, 0);
   sf::Event action;
 
@@ -576,12 +608,19 @@ void CheckersGame::onTreeVizThread(){
 
   while(app2.isOpen()){
     app2.clear(sf::Color(50,50,50));
+    app2.setView(camera);
+    initialPositionTreeViz = 0;
+    if(treeWasGenerated){
+      mutex.lock();
+      readPrunedMinMaxTree(root, app2);
+      treeWasGenerated = false;
+      mutex.unlock();
+    }
+    printPrunedMinMaxTree(root, Turn::BOT, app2);
     app2.setView(camHUD);
     rawCameraPosInfo = "Current Camera Position: [" + std::to_string(camera.getCenter().x) + ", " + std::to_string(camera.getCenter().y) + "]";
     cameraPosInfo.setString(rawCameraPosInfo);
     app2.draw(cameraPosInfo);
-    app2.setView(camera);
-    readPrunedMinMaxTree(root, Turn::BOT, app2, treeDepth);
     app2.display();
     if(app2.hasFocus()){
       double size = camera.getSize().x * 0.006;
@@ -602,6 +641,12 @@ void CheckersGame::onTreeVizThread(){
       if(action.type == sf::Event::Closed){
         app2.close();
         exit(0);
+      }
+      if(action.type == sf::Event::KeyPressed){
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
+          if(root != nullptr)
+            camera.setCenter(root->position);
+        }
       }
     }
   }
