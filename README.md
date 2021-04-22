@@ -12,7 +12,7 @@ Este repositorio contiene los trabajos de desarrollo en grupo dejados en clase d
 
 1. Algoritmos de Búsqueda de caminos (A*, BFS, DFS) - 03/04/2021.\
    └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Path%20Finder%20Algorithms%20-%20Tarea%20001)
-2. Juego de Damas (Humano vs Bot) - 20/04/2021.\
+2. Juego de Damas (Humano vs Bot) - 21/04/2021.\
    └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20002%20-%20Checkers%20with%20MinMax)
 3. Algoritmos Genéticos (Maximizador) - 18/04/2021.\
    └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20003%20-%20GeneticAlgorithms)

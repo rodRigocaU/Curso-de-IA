@@ -1,6 +1,6 @@
 # **Algoritmo Min Max con poda Alfa-Beta aplicado al juego de damas**
 
-## Última fecha de modificación: 20/04/2021
+## Última fecha de modificación: 21/04/2021
 
 ## Integrantes que participaron:
 
