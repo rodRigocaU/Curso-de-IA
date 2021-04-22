@@ -88,7 +88,7 @@ private:
                       int8_t alpha = std::numeric_limits<int8_t>::min(), int8_t beta  = std::numeric_limits<int8_t>::max());
   bool getNextSimulation(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
   void displayGame(sf::RenderWindow& window);
-  void readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window,const sf::Vector2<float> position = sf::Vector2<float>(0,0));
+  void readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window, uint32_t depth, const sf::Vector2<float> position = sf::Vector2<float>(0,0));
   void printNode(std::shared_ptr<GameStatus> node, Turn currentTurn, const sf::Vector2<float>& position, sf::RenderWindow& window);
   bool gameOver(Turn currentTurn, std::shared_ptr<GameStatus> currentGameState);
 public:
@@ -289,6 +289,7 @@ void CheckersGame::onControlsUpdate(sf::RenderWindow& window){
       break;
     case Turn::BOT:
       if(botMovementTimer.getElapsedTime() >= botThinkDelay){
+        root.reset();
         root = std::make_shared<GameStatus>(mboard);
         root->value = minmaxAlphaBeta(root, treeDepth, gameTurn);
         if(choosenBotMovement != nullptr){
@@ -535,15 +536,15 @@ void CheckersGame::printNode(std::shared_ptr<GameStatus> node, Turn currentTurn,
   }
 }
 
-void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window, const sf::Vector2<float> position){
+void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn currentTurn, sf::RenderWindow& window, uint32_t depth, const sf::Vector2<float> position){
   if(node != nullptr){
     if(!node->successors.empty()){
-      float dispersion = position.x - node->successors.size() * dispersionFactor * treeDepth + position.y;
+      float dispersion = position.x - node->successors.size() * dispersionFactor * (8 - depth);
       for(std::shared_ptr<GameStatus>& successor : node->successors){
         sf::Vertex line[] = {sf::Vertex(position),sf::Vertex(position + sf::Vector2<float>(dispersion, position.y + 60))};
         window.draw(line, 2, sf::Lines);
-        readPrunedMinMaxTree(successor, (currentTurn == Turn::HUMAN)?Turn::BOT:Turn::HUMAN, window, position + sf::Vector2<float>(dispersion, position.y + 60));
-        dispersion += (dispersionFactor * 2 * treeDepth - position.y);
+        readPrunedMinMaxTree(successor, (currentTurn == Turn::HUMAN)?Turn::BOT:Turn::HUMAN, window, depth - 1, position + sf::Vector2<float>(dispersion, position.y + 60));
+        dispersion += (dispersionFactor * 2 * (8 - depth));
       }
     }
     printNode(node, currentTurn, position, window);
@@ -551,7 +552,7 @@ void CheckersGame::readPrunedMinMaxTree(std::shared_ptr<GameStatus> node, Turn c
 }
 
 void CheckersGame::onTreeVizThread(){
-  sf::RenderWindow app2(sf::VideoMode(617,617), "Inside the A.I.");
+  sf::RenderWindow app2(sf::VideoMode(617 + SIZE_HUD, 617 + SIZE_HUD), "Inside the A.I.");
   app2.setPosition(treeVizWindowPosition);
   app2.setVerticalSyncEnabled(1);
   sf::View camera = app2.getDefaultView(), camHUD = app2.getDefaultView();
@@ -580,7 +581,7 @@ void CheckersGame::onTreeVizThread(){
     cameraPosInfo.setString(rawCameraPosInfo);
     app2.draw(cameraPosInfo);
     app2.setView(camera);
-    readPrunedMinMaxTree(root, Turn::BOT, app2);
+    readPrunedMinMaxTree(root, Turn::BOT, app2, treeDepth);
     app2.display();
     if(app2.hasFocus()){
       double size = camera.getSize().x * 0.006;
