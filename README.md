@@ -1,18 +1,45 @@
-# **Curso-de-Inteligencia Artificial - Universidad Católica San Pablo**
-Este repositorio contiene los trabajos de desarrollo en grupo dejados en clase del curso de Inteligencia Artificial del 7mo semestre de la carrera de Ciencias de la Computación.
+# **Algoritmo Min Max con poda Alfa-Beta aplicado al juego de damas**
 
-## Integrantes del grupo:
+## Última fecha de modificación: 21/04/2021
+
+## Integrantes que participaron:
 
 - Luis Alexin Salazar Marroquin
 - Yhon Yerson Sanchez Yucra
 - Italo Mamani Huaricallo
 - Rodrigo Andre Cayro Cuadros
 
-## Proyectos:
+## Requerimientos:
+- CMake version 3.15
+- SFML 2.5.1 instalado
 
-1. Algoritmos de Búsqueda de caminos (A*, BFS, DFS) - 03/04/2021.\
-   └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Path%20Finder%20Algorithms%20-%20Tarea%20001)
-2. Juego de Damas (Humano vs Bot) - 21/04/2021.\
-   └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20002%20-%20Checkers%20with%20MinMax)
-3. Algoritmos Genéticos (Maximizador) - 18/04/2021.\
-   └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20003%20-%20GeneticAlgorithms)
+## Instalación
+### Windows
+- `mkdir build`
+- `cmake -G "MinGW Makefiles" -B "build"`
+- `cd build`
+- `mingw32-make`
+
+### Linux
+- `mkdir -p build`
+- `cmake -B "build"`
+- `cd build`
+- `make`
+
+## Ejecución:
+- `./Checkers`
+
+## Controles:
+- El programa provee una lista de teclas y botones utilizables con la descripción de su función, impresas en la consola.
+
+## Screenshots:
+- Presiona la tecla S en el programa para obtener una captura del programa en la carpeta "/screenshots".
+
+## create board and structure
+![img](img/init.png)
+
+## IA 
+![img](img/iawin.png)
+
+## Human
+![img](img/win.png)
