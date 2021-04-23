@@ -642,6 +642,14 @@ void CheckersGame::onTreeVizThread(){
           if(root != nullptr)
             camera.setCenter(root->position);
         }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::E)){
+          sf::Vector2u windowSize = app2.getSize();
+          sf::Texture captureTexture;
+          captureTexture.create(windowSize.x, windowSize.y);
+          captureTexture.update(app2);
+          sf::Image screenshot = captureTexture.copyToImage();
+          screenshot.saveToFile("../screenshots/" + std::to_string(fileCounter++) + ".jpg");
+        }
       }
     }
   }
