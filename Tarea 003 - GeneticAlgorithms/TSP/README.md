@@ -4,7 +4,7 @@
 # python
 
  ## Graph
-![img]()
+![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/grafica01.png)
 
 ## Cities and route
 ![img]()
