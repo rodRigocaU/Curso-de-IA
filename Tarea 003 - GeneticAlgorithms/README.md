@@ -52,5 +52,21 @@ Programa para maximizar una funciòn y problema del agente viajero usando algori
 ![rastrigin2](https://user-images.githubusercontent.com/42578741/116007050-82701c80-a5d3-11eb-8581-3d529db8b00e.JPG)
 ![rastrigin2 1JPG](https://user-images.githubusercontent.com/42578741/116007051-83a14980-a5d3-11eb-8907-88a2b36b279f.JPG)
 
-## Funcion Matemàtica
+## TSP
+# Traveling Salesman Problem
 
+# python
+
+ ## Graph
+![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/grafica01.png)
+
+## Cities and route
+![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/grafica02.png)
+
+# interactive interface with javascript
+
+## Click
+![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/grafica03.png)
+
+## Cities,route,distance and generation
+![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/grafica04.png)
