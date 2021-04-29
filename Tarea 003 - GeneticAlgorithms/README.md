@@ -14,12 +14,14 @@ Programa para maximizar una funciòn y problema del agente viajero usando algori
 - Italo Mamani Huaricallo
 - Rodrigo Andre Cayro Cuadros
 
-## carpetas
+# carpetas
 
 - Funciòn Matemàtica
 - TSP
+- TSP/viajero_js
+- TCP/viajero_py
 
-## Funcion Matemàtica
+# Funcion Matemàtica
 # **Algoritmo Genetico para funciones Matematicas (Selección Ruleta , Representación Binaria )**
 
 ## Última fecha de modificación: 18/04/2021
@@ -52,7 +54,7 @@ Programa para maximizar una funciòn y problema del agente viajero usando algori
 ![rastrigin2](https://user-images.githubusercontent.com/42578741/116007050-82701c80-a5d3-11eb-8581-3d529db8b00e.JPG)
 ![rastrigin2 1JPG](https://user-images.githubusercontent.com/42578741/116007051-83a14980-a5d3-11eb-8907-88a2b36b279f.JPG)
 
-## TSP
+# TSP
 # Traveling Salesman Problem
 
 # python
