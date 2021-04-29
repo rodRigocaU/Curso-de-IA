@@ -73,4 +73,4 @@ Programa para maximizar una funciòn y problema del agente viajero usando algori
 ## Cities,route,distance and generation
 ![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/grafica04.png)
 
-![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/selection_075.png)
+![img](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20003%20-%20GeneticAlgorithms/TSP/img/Selection_075.png)
