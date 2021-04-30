@@ -22,7 +22,7 @@ Programa para maximizar una funciòn y problema del agente viajero usando algori
 - TCP/viajero_py
 
 # Funcion Matemàtica
-# **Algoritmo Genetico para funciones Matematicas (Selección Ruleta , Representación Binaria )**
+# **Algoritmo Genetico para funciones Matematicas (Selección Ruleta , Representación Binaria ) Maximizar**
 
 ## Última fecha de modificación: 18/04/2021
 
