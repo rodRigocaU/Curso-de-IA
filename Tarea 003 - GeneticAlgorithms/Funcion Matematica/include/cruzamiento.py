@@ -40,6 +40,17 @@ def to_int_list_list(list_list_values_binaries):
     return new_population_list_list_int
 
 
+def mutate_binary(index, binary):
+    binary = list(binary)
+    if binary[index] == '0':
+        binary[index] = '1'
+    else:
+        binary[index] = '0'
+    new_binary = "".join(binary)
+
+    return new_binary
+
+
 def standar_binary(number1, number2):
     binary1 = to_binary(number1)
     binary2 = to_binary(number2)
@@ -64,6 +75,14 @@ def get_max_number(binary_number1, binary_number2):
     number2 = to_int(binary_number2)
 
     number_max = max(number1, number2)
+    return to_binary(number_max)
+
+
+def get_max_number_3(binary_number1, binary_number2, best):
+    number1 = to_int(binary_number1)
+    number2 = to_int(binary_number2)
+    best_number = to_int(best)
+    number_max = max(number1, number2, best_number)
     return to_binary(number_max)
 
 
@@ -99,9 +118,11 @@ def standar_binaries(array_number1, array_number2):
     return binaries
 
 
-def cruzamiento(len_population, math_func_values_update, func_math=None):
-
+def cruzamiento(len_population, math_func_values_update, index_mutation, func_math=None):
     population_x_binary = []
+
+    first_couple_mutation = False
+    second_couple_mutation = False
 
     all_item = []
     for v in math_func_values_update:
@@ -111,11 +132,17 @@ def cruzamiento(len_population, math_func_values_update, func_math=None):
     func_math.last_best_population = best_population
     best_population_binary = to_binary(best_population)
 
+    # Mutaremos?
+    mutar = False
+    probabilidad_mutar = random.randint(0, 100)
+    if probabilidad_mutar == 1:
+        mutar = True
+
     if func_math.is_Rastrigin:
         domains = func_math.getDomain_x()
         population_in_binaries = []
 
-        # Cada pareja
+        # Cada pareja de individuos
         for i in range(0, len_population, 2):
 
             binaries_couple_x = standar_binaries(math_func_values_update[i][0], math_func_values_update[i + 1][0])
@@ -123,6 +150,14 @@ def cruzamiento(len_population, math_func_values_update, func_math=None):
             # Cruzar
             array_binaries_x_1 = []
             array_binaries_x_2 = []
+
+            # Identificar al individuo Mutacion
+            if i == index_mutation and mutar:
+                first_couple_mutation = True
+
+            elif i + 1 == index_mutation and mutar:
+                second_couple_mutation = True
+            # -------------------------------------
 
             for j in range(len(binaries_couple_x[0])):
                 # x0_0
@@ -139,7 +174,6 @@ def cruzamiento(len_population, math_func_values_update, func_math=None):
 
                 else:
                     len_binary_x = len(binary_x_copuple_1)
-                    print(len_binary_x)
                     cross_position_x = random.randint(1, len_binary_x - 1)
 
                     sub_binary_x_1_begin = binary_x_copuple_1[:cross_position_x]
@@ -151,36 +185,45 @@ def cruzamiento(len_population, math_func_values_update, func_math=None):
                     binary_first_cross = sub_binary_x_1_begin + sub_binary_x_2_end
                     binary_second_cross = sub_binary_x_2_begin + sub_binary_x_1_end
 
+                    # Mutacion
+                    if first_couple_mutation:
+                        indice_binary = random.randint(0, len(binary_first_cross) - 1)
+                        binary_first_cross = mutate_binary(indice_binary, binary_first_cross)
+                    elif second_couple_mutation:
+                        indice_binary = random.randint(0, len(binary_second_cross) - 1)
+                        binary_second_cross = mutate_binary(indice_binary, binary_second_cross)
+                    # ------------------------------------------------------------------------------
+
                     # Mantener el dominio de x
                     # -------------------------------------------------
-                    max_number_binary = get_max_number(binary_x_copuple_1, binary_x_copuple_2)
+                    # max_number_binary = get_max_number(binary_x_copuple_1, binary_x_copuple_2)
+                    # max_number_binary = get_max_number_3(binary_x_copuple_1, binary_x_copuple_2, best_population_binary)
+                    max_number_binary = best_population_binary
                     number_1 = to_int(binary_first_cross)
                     number_2 = to_int(binary_second_cross)
                     # -------------------------------------------------
                     # sobrepasa el dominio
                     if (domains[0] > number_1 or number_1 > domains[1]) and \
                             (domains[0] > number_2 or number_2 > domains[1]):
-                        # print("GA IF")
                         array_binaries_x_1.append(max_number_binary)
                         array_binaries_x_2.append(max_number_binary)
                         # array_binaries_x_1.append(binary_first_cross)
                         # array_binaries_x_2.append(binary_second_cross)
 
                     elif domains[0] > number_1 or number_1 > domains[1]:
-                        # print("GA ELIF1")
                         array_binaries_x_1.append(max_number_binary)
                         # array_binaries_x_1.append(binary_first_cross)
 
                     elif domains[0] > number_2 or number_2 > domains[1]:
-                        # print("GA ELIF2")
                         array_binaries_x_2.append(max_number_binary)
                         # array_binaries_x_2.append(binary_second_cross)
 
                     else:
-                        # print("GA ELSE")
                         array_binaries_x_1.append(binary_first_cross)
                         array_binaries_x_2.append(binary_second_cross)
 
+            first_couple_mutation = False
+            second_couple_mutation = False
             population_in_binaries.append(array_binaries_x_1.copy())
             population_in_binaries.append(array_binaries_x_2.copy())
 
@@ -270,7 +313,6 @@ def cruzamiento(len_population, math_func_values_update, func_math=None):
                 population_y_binary.append(child_1_binary)
                 population_y_binary.append(child_2_binary)
             # --------------------------------------------------
-
 
             # -------------------z------------------------
             binaries_z = standar_binary(math_func_values_update[i][0][2], math_func_values_update[i + 1][0][2])

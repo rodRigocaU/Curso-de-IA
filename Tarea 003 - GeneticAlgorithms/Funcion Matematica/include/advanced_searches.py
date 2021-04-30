@@ -16,6 +16,8 @@ population_z_binary = None
 
 values_func_math = None
 
+individuos_Rastrigin = 4
+
 
 def create_func_math(len_population, len_generation):
     # print("Simbolos aceptados para la expresion acepatos = + - * / ** () ^ sin cos PI...")
@@ -50,15 +52,16 @@ def generate_population_initial():
     global population_y_binary
     global population_z_binary
     global func_math
-
+    global individuos_Rastrigin
     len_population = func_math.len_population
 
     if func_math.is_Rastrigin:
-        population_x_values=[]
+        population_x_values = []
         # Define cuantos individuos por generacion queremos
-        for i in range(0, 4):
-            population_x_values.append(random.sample(range(func_math.x_domain[0], func_math.x_domain[1]), len_population))
-        print(population_x_values)
+        for i in range(0, individuos_Rastrigin):
+            population_x_values.append(
+                random.sample(range(func_math.x_domain[0], func_math.x_domain[1]), len_population))
+        # print(population_x_values)
         func_math.add_generate_Rastrigin(population_x_values.copy())
     else:
         # Generar numeros random con los dominios puestos
@@ -110,8 +113,10 @@ def algortihm_genetic():
             # -----------------------Fin de la Seleccion de la ruleta-----------------------
 
             # -----------------------Algoritmo de cruzamiento-----------------------
+            # Indice para el individuo sea el mutado
+            index = random.randint(0, individuos_Rastrigin - 1)
             # La agrupacion es por parejas adyacentes
-            population_in_binaries = cruzamiento(func_math.len_population, math_func_values_update,func_math)
+            population_in_binaries = cruzamiento(func_math.len_population, math_func_values_update, index, func_math)
             # -----------------------Fin del Algoritmo de cruzamiento-----------------------
 
             #  Nueva poblacion ya cruzada en binarios debemos castearlos
@@ -124,7 +129,7 @@ def algortihm_genetic():
 
         # La llamamos para guardar suma, promedio y maximo de la ultima problacion agregada
         func_math.results_expr_Rastrigin(population_x_values)
-        func_math.print_generations()
+        # func_math.print_generations()
         func_math.draw_generations()
 
 
@@ -139,7 +144,8 @@ def algortihm_genetic():
 
             # -----------------------Algoritmo de cruzamiento-----------------------
             # La agrupacion es por parejas adyacentes
-            population_in_binaries = cruzamiento(func_math.len_population, math_func_values_update,func_math)
+            index = random.randint(0, len_population - 1)
+            population_in_binaries = cruzamiento(func_math.len_population, math_func_values_update, index, func_math)
 
             population_x_binary = population_in_binaries[0]
             population_y_binary = population_in_binaries[1]
