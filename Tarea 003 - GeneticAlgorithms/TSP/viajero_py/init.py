@@ -1,4 +1,5 @@
 import numpy as np, random, operator, pandas as pd, matplotlib.pyplot as plt
+
 class City:
     def __init__(self,name, x, y):
         self.name = name
@@ -13,7 +14,7 @@ class City:
     
     def __repr__(self):
         return "(" + str(self.name)+ ")"
-
+        
 class Fitness:
     def __init__(self, route):
         self.route = route
@@ -39,13 +40,14 @@ class Fitness:
             self.fitness = 1 / float(self.routeDistance())
         return self.fitness
 
+#Generador de rutas Este método aleatoriza el orden de las ciudades,
+# esto significa que este método crea un individuo al azar.
 def createRoute(cityList):
     route = random.sample(cityList, len(cityList))
     return route
 
 
-
-
+#Este método crea una población aleatoria del tamaño especificado.
 def initialPopulation(popSize, cityList):
     population = []
 
@@ -54,7 +56,8 @@ def initialPopulation(popSize, cityList):
     return population
 
 
-
+#Esta función toma una población y la ordena en orden descendente
+#usando la aptitud de cada individuo
 def rankRoutes(population):
     fitnessResults = {}
     for i in range(0,len(population)):
@@ -64,8 +67,7 @@ def rankRoutes(population):
 
 
 
-
-
+#Crear una función de selección que se utilizará para hacer la lista de rutas padre
 def selection(popRanked, eliteSize):
     selectionResults = []
     df = pd.DataFrame(np.array(popRanked), columns=["Index","Fitness"])
@@ -84,8 +86,7 @@ def selection(popRanked, eliteSize):
 
 
 
-
-
+#Crear poblacion para cruce
 def matingPool(population, selectionResults):
     matingpool = []
     for i in range(0, len(selectionResults)):
@@ -96,6 +97,7 @@ def matingPool(population, selectionResults):
 
 
 
+#cruzaniebto
 def breed(parent1, parent2):
     child = []
     childP1 = []
@@ -112,20 +114,19 @@ def breed(parent1, parent2):
         
 
     childP2 = [item for item in parent2 if item not in childP1]
-    print(startGene, endGene)
+    #print(startGene, endGene)
 
-    print(parent1)
-    print(parent2)
+    #print(parent1)
+    #print(parent2)
 
-    print(childP1)
-    print(childP2)
+    #print(childP1)
+    #print(childP2)
     child = childP1 + childP2
 
-    print(child)
+    #print(child)
     return child
 
-
-
+#Crear función para ejecutar el cruce sobre el conjunto 
 def breedPopulation(matingpool, eliteSize):
     children = []
     length = len(matingpool) - eliteSize
@@ -142,32 +143,30 @@ def breedPopulation(matingpool, eliteSize):
 
 
 
-
+#mutar una sola ruta
 def mutate(individual, mutationRate):
     for swapped in range(len(individual)):
         if(random.random() < mutationRate):
             swapWith = int(random.random() * len(individual))
-            
+
             city1 = individual[swapped]
             city2 = individual[swapWith]
-            
+
             individual[swapped] = city2
             individual[swapWith] = city1
     return individual
 
 
 
-
-
+#mutar toda la poblacion
 def mutatePopulation(population, mutationRate):
     mutatedPop = []
-    
     for ind in range(0, len(population)):
         mutatedInd = mutate(population[ind], mutationRate)
         mutatedPop.append(mutatedInd)
     return mutatedPop
 
-
+#llamar funciones para la siguiente generaciòn
 
 def nextGeneration(currentGen, eliteSize, mutationRate):
     popRanked = rankRoutes(currentGen)
@@ -177,40 +176,37 @@ def nextGeneration(currentGen, eliteSize, mutationRate):
     nextGeneration = mutatePopulation(children, mutationRate)
     return nextGeneration
 
-def geneticAlgorithm(poblacion, n, m, mutationRate, generations):
-    pop = initialPopulation(n, poblacion)
+def geneticAlgorithm(population, popSize, eliteSize, mutationRate, generations):
+    pop = initialPopulation(popSize, population)
     progress = [1 / rankRoutes(pop)[0][1]]
-    print("Distancia inicial: " + str(progress[0]))
-    
+    print("Initial distance: " + str(progress[0]))
+
     for i in range(1, generations+1):
-        
-        pop = nextGeneration(pop, m, mutationRate)
+        pop = nextGeneration(pop, eliteSize, mutationRate)
         progress.append(1 / rankRoutes(pop)[0][1])
-        if i%50==0:
-          print('Generacion '+str(i),"Distancia: ",progress[i])
-        
-        
+        if i%100==0:
+          print('Generation '+str(i),"Distance: ",progress[i])
+
     bestRouteIndex = rankRoutes(pop)[0][0]
     bestRoute = pop[bestRouteIndex]
     
     plt.plot(progress)
-    plt.ylabel('Distancia')
-    plt.xlabel('Generaciòn')
-    plt.title('gràfica')
+    plt.ylabel('Distance')
+    plt.xlabel('Generation')
+    plt.title('graphic')
     plt.tight_layout()
     plt.show()
 
-    
-    
     return bestRoute
 
+#    init program
 cityList = []
-
 for i in range(0,10):
     cityList.append(City(name = i, x=int(random.random() * 200), y=int(random.random() * 200)))
 
 
-best_route=geneticAlgorithm(poblacion=cityList, n=30, m=10, mutationRate=0.01, generations=500)
+best_route=geneticAlgorithm(population=cityList, popSize=30, eliteSize=20, mutationRate=0.01, generations=500)
+
 x=[]
 y=[]
 for i in best_route:
@@ -218,15 +214,14 @@ for i in best_route:
   y.append(i.y)
 x.append(best_route[0].x)
 y.append(best_route[0].y)
+
 plt.plot(x, y, '--o')
 plt.xlabel('X')
 plt.ylabel('Y')
 ax=plt.gca()
-plt.title('Final')
+plt.title('Final Route')
 bbox_props = dict(boxstyle="circle,pad=0.3", fc='C0', ec="black", lw=0.5)
 for i in range(1,len(cityList)+1):
-  ax.text(cityList[i-1].x, cityList[i-1].y, str(i), ha="center", va="center",
-            size=8,
-            bbox=bbox_props)
+  ax.text(cityList[i-1].x, cityList[i-1].y, str(i), ha="center", va="center",size=8,bbox=bbox_props)
 plt.tight_layout()
 plt.show()
