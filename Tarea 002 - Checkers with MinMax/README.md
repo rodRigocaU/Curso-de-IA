@@ -34,3 +34,12 @@
 
 ## Screenshots:
 - Presiona la tecla S en el programa para obtener una captura del programa en la carpeta "/screenshots".
+
+## create board and structure
+![img](img/init.png)
+
+## IA 
+![img](img/iawin.png)
+
+## Human
+![img](img/win.png)

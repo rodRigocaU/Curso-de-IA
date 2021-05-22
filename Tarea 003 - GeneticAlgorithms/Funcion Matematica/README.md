@@ -27,3 +27,13 @@
 - `env\Scripts\activate`
 - `pip install -r requirements.txt`
 - configurar su entorno de desarrollo favorito
+
+## Example for function with 3 variables
+![Ejemplo1](https://user-images.githubusercontent.com/42578741/116007038-78e6b480-a5d3-11eb-988f-845844d7a155.JPG)
+![Ejemplo2](https://user-images.githubusercontent.com/42578741/116007045-7f752c00-a5d3-11eb-8011-c3f3fc51bf2d.JPG)
+![Ejemplo3](https://user-images.githubusercontent.com/42578741/116007047-80a65900-a5d3-11eb-8ed6-23a0c26d9851.JPG)
+
+## Function Rastrigin
+![rastrigin2](https://user-images.githubusercontent.com/42578741/116007050-82701c80-a5d3-11eb-8581-3d529db8b00e.JPG)
+![rastrigin2 1JPG](https://user-images.githubusercontent.com/42578741/116007051-83a14980-a5d3-11eb-8907-88a2b36b279f.JPG)
+
