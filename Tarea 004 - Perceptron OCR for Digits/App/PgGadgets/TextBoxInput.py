@@ -17,11 +17,18 @@ class TextBoxInput:
     self.blinkCursor = 0
     self.savedContent = ""
 
+    self.onReturnPress = False
+
   def getInputText(self):
     return self.savedContent
 
   def getEnabledKeyboard(self):
     return self.blockingKeyboardEvent
+
+  def getReturnPressed(self):
+    temp = self.onReturnPress
+    self.onReturnPress = False
+    return temp
 
   def onUserDisplay(self, screen):
     if pygame.get_init():
@@ -48,6 +55,7 @@ class TextBoxInput:
       if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_RETURN:
           self.savedContent = self.textString
+          self.onReturnPress = True
           self.textString = ""
           self.letterPos = 0
         elif event.key == pygame.K_BACKSPACE:

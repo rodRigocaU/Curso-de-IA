@@ -42,8 +42,6 @@ class BitMatrixViz:
             for y in range(self.nRows):
               for x in range(self.nCols):
                 self.input[y][x] = 0
-          if event.key == pygame.K_RETURN:
-            pass
 
   def setBlockedKeyboard(self, enabled):
     self.blockedKeyboard = enabled
