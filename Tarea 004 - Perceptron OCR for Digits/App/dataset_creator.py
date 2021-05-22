@@ -12,7 +12,7 @@ class DataFileManagerOut:
   def saveBitListOnFile(self, bit_list, output):
     json_dict = {"Dimensionality":len(bit_list), "Output": output, "InputList":bit_list}
     with open(self.data_path + self.getDate() + ".json", 'w') as json_file:
-      json.dump(json_dict, json_file)
+      json.dump(json_dict, json_file, indent = 4, sort_keys = True)
       json_file.close()
 
   def getDate(self):

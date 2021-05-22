@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import json
 
 class PerceptronLayer:
   def __init__(self, nParameters, nNeurons, fActivation, lRatio) -> None:
@@ -10,6 +11,13 @@ class PerceptronLayer:
       self.learningRatio = lRatio
       self.initialized = False
 
+  def getStatus(self):
+    print(" - Initialized: ", self.initialized)
+    if(self.initialized):
+      print(" - # Neurons: ", self.Neurons)
+      print(" - # Input Parameters: ", len(self.weights[0]) - 1)
+      print(" - Learning ratio:", self.learningRatio)
+
   def overrideNewNN(self):
     for n in range(self.Neurons):
       self.weights.append([])
@@ -17,11 +25,34 @@ class PerceptronLayer:
         self.weights[n].append(random.uniform(-1,1))
     self.initialized = True
 
-  def loadFromFile(self, filePath):
-    self.initialized = True
+  def loadFromFile(self, file):
+    try:
+      with open(file, 'r') as jsonNNSource:
+        data = json.load(jsonNNSource)
+        self.weights = data["Weights"]
+        self.Neurons = data["Neurons"]
+        self.WeightInputs = data["Parameters+Bias"]
+        self.learningRatio = data["Learning_Ratio"]
+        self.initialized = data["Initialized"]
+        jsonNNSource.close()
+      return True
+    except:
+      return False
 
-  def saveOnFile(self, filePath):
-    pass
+  def saveOnFile(self, file):
+    if self.initialized:
+      jsonNNSource = {
+        "Weights" : self.weights,
+        "Neurons" : self.Neurons,
+        "Parameters+Bias" : self.WeightInputs,
+        "Learning_Ratio" : self.learningRatio,
+        "Initialized" : self.initialized
+      }
+      with open(file, 'w') as json_file:
+        json.dump(jsonNNSource, json_file, indent = 4, sort_keys = True)
+        json_file.close()
+      return True
+    return False
   
   def calculate(self, input):
     if self.initialized:
@@ -47,7 +78,7 @@ class PerceptronLayer:
           for i in range(len(self.weights[n])):
             self.weights[n][i] = self.weights[n][i] + self.learningRatio * temp[i] * (output - obtained)
           print(self.weights[n])
-        print("------------------------------------------------")
+        print("="*40)
         return False
       else:
         return True
@@ -55,7 +86,7 @@ class PerceptronLayer:
 
   def inside(self):
     for n in range(len(self.weights)):
-      print("- Weight X" + str(n), ":", self.weights[n])
+      print("- Weight Neuron#" + str(n + 1), ":", self.weights[n])
 
   def train(self, inputs, outputs, iterations):
     if self.initialized:
