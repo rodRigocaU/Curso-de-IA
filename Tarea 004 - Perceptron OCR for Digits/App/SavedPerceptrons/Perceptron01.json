@@ -2,6 +2,7 @@
     "Initialized": true,
     "Learning_Ratio": 0.03,
     "Neurons": 10,
+    "TrainingBalance": "0%",
     "Parameters+Bias": 49,
     "Weights": [
         [

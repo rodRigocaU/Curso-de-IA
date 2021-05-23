@@ -17,6 +17,7 @@ class PerceptronLayer:
       self.WeightInputs = nParameters + 1
       self.learningRatio = lRatio
       self.initialized = False
+      self.trainingStatus = "0%"
 
   def getStatus(self):
     print(" - Initialized: ", self.initialized)
@@ -24,6 +25,7 @@ class PerceptronLayer:
       print(" - # Neurons: ", self.Neurons)
       print(" - # Input Parameters: ", len(self.weights[0]) - 1)
       print(" - Learning ratio:", self.learningRatio)
+      print(" - Last training balance: ", self.trainingStatus)
 
   def overrideNewNN(self):
     for n in range(self.Neurons):
@@ -41,6 +43,7 @@ class PerceptronLayer:
         self.WeightInputs = data["Parameters+Bias"]
         self.learningRatio = data["Learning_Ratio"]
         self.initialized = data["Initialized"]
+        self.trainingStatus = data["TrainingBalance"]
         jsonNNSource.close()
       return True
     except:
@@ -53,7 +56,8 @@ class PerceptronLayer:
         "Neurons" : self.Neurons,
         "Parameters+Bias" : self.WeightInputs,
         "Learning_Ratio" : self.learningRatio,
-        "Initialized" : self.initialized
+        "Initialized" : self.initialized,
+        "TrainingBalance" : self.trainingStatus
       }
       with open(file, 'w') as json_file:
         json.dump(jsonNNSource, json_file, indent = 4, sort_keys = True)
@@ -117,6 +121,7 @@ class PerceptronLayer:
         statusBar.next()
       statusBar.finish()
       print("\t>> Tests Passed:", passed, "- Test Non passed:", nonPassed)
+      self.trainingStatus = str(int((float(passed)/float(passed + nonPassed)) * 100)) + "%"
       print("<>"*20)
       return
     print("<Error>: Empty Neural Network, use overrideNewNN() or loadFromFile(file)")
