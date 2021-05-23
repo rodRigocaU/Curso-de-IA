@@ -16,6 +16,7 @@ class TextBoxInput:
     self.blockingKeyboardEvent = False
     self.blinkCursor = 0
     self.savedContent = ""
+    self.editableLabel = ""
 
     self.onReturnPress = False
 
@@ -37,7 +38,7 @@ class TextBoxInput:
       color = (0,255,0)if self.rectViewText/self.charLenght != len(self.textString) else (255,150,0)
       renderedText = self.font.render(self.textString[:self.letterPos] + ("|"if self.blinkCursor >= 15 else " ") + self.textString[self.letterPos:], True, color)
       screen.blit(renderedText, (self.posX + self.height*0.09, self.posY + self.height*0.09))
-      renderedText = self.font.render(self.textLabel, True, (255,255,255))
+      renderedText = self.font.render(self.textLabel + self.editableLabel, True, (255,255,255))
       screen.blit(renderedText, (self.posX - renderedText.get_width()*0.5 + self.width * 0.5, self.posY - self.height*0.75))
       if self.blockingKeyboardEvent:
         self.blinkCursor = (self.blinkCursor + 1) % 31

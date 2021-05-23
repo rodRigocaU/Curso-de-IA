@@ -2,6 +2,12 @@ import numpy as np
 import random
 import json
 
+def vec2Num(vec):
+  value = 0
+  for idx, bit in enumerate(vec):
+    value += bit * 2**(len(vec) - 1 - idx)
+  return value
+
 class PerceptronLayer:
   def __init__(self, nParameters, nNeurons, fActivation, lRatio) -> None:
       self.weights = []
@@ -55,7 +61,7 @@ class PerceptronLayer:
     return False
   
   def calculate(self, input):
-    if self.initialized:
+    if self.initialized and len(input) == self.WeightInputs - 1:
       output = []
       for n in range(len(self.weights)):
         output.append(self.Activation(float(np.matrix(input + [1]) * np.matrix(self.weights[n]).T)))
@@ -64,11 +70,6 @@ class PerceptronLayer:
     exit(1)
  
   def fit(self, input, output):
-    def vec2Num(vec):
-      value = 0
-      for idx, bit in enumerate(vec):
-        value += bit * 2**(len(vec) - 1 - idx)
-      return value
     if(len(input) == len(self.weights[0]) - 1):
       obtained = vec2Num(self.calculate(input))
       print("Obtained:", obtained, " Estimated:", output)
