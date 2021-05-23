@@ -31,7 +31,6 @@ def trainPerceptron(NN):
     iterations = int(input("\t>> #Iterations(LIMIT): "))
     NN.train(inputs, outputs, iterations)
     print(">> Training finished")
-    NN.inside()
   else:
     print(">> ERROR: The folder \"DATA/\" is empty(no json file found).")
   return NN

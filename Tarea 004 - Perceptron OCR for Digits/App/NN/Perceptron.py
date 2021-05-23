@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import json
+from progress.bar import ChargingBar
 
 def vec2Num(vec):
   value = 0
@@ -72,14 +73,14 @@ class PerceptronLayer:
   def fit(self, input, output):
     if(len(input) == len(self.weights[0]) - 1):
       obtained = vec2Num(self.calculate(input))
-      print("Obtained:", obtained, " Estimated:", output)
+      #print("Obtained:", obtained, " Estimated:", output)
       if(obtained != output):
         temp = input + [1]
         for n in range(len(self.weights)):
           for i in range(len(self.weights[n])):
             self.weights[n][i] = self.weights[n][i] + self.learningRatio * temp[i] * (output - obtained)
-          print(self.weights[n])
-        print("="*40)
+          #print(self.weights[n])
+        #print("="*40)
         return False
       else:
         return True
@@ -91,12 +92,32 @@ class PerceptronLayer:
 
   def train(self, inputs, outputs, iterations):
     if self.initialized:
+      statusBar = ChargingBar('\t>> Training:', max=100)
       status = False
-      while(status != True and iterations != 0):
+      iteration = 0
+      interval = int(iterations/100) if iterations > 100 else 1
+      passed = 0
+      nonPassed = 0
+      while(status != True and iteration < iterations):
         status = True
-        iterations -= 1
+        passed = 0
+        nonPassed = 0
         for i in range(len(inputs)):
-          status = status and self.fit(inputs[i], outputs[i])
+          currentStatus = self.fit(inputs[i], outputs[i])
+          status = status and currentStatus
+          if currentStatus:
+            passed += 1
+          else:
+            nonPassed += 1
+        iteration += 1
+        if iteration % interval == 0:
+          statusBar.next()
+      while(iteration < 100):
+        iteration += 1
+        statusBar.next()
+      statusBar.finish()
+      print("\t>> Tests Passed:", passed, "- Test Non passed:", nonPassed)
+      print("<>"*20)
       return
     print("<Error>: Empty Neural Network, use overrideNewNN() or loadFromFile(file)")
     exit(1)
