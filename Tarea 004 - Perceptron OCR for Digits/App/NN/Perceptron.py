@@ -28,6 +28,7 @@ class PerceptronLayer:
       print(" - Last training balance: ", self.trainingStatus)
 
   def overrideNewNN(self):
+    self.weights = []
     for n in range(self.Neurons):
       self.weights.append([])
       for p in range(self.WeightInputs):

@@ -1,5 +1,5 @@
-from NN.Perceptron import PerceptronLayer
-from NN.Perceptron import vec2Num
+from NN.MultiLayerPerceptron import NeuralNet
+from NN.MultiLayerPerceptron import convertInUnderstandableOutput
 from PgGadgets.BitMatrixApp import BitMatrixViz
 from PgGadgets.TextBoxInput import TextBoxInput
 
@@ -8,7 +8,7 @@ import pygame
 if __name__ == "__main__":
   pygame.init()
   screen = pygame.display.set_mode((550, 520))
-  pygame.display.set_caption("OCR Perceptron [Perceptron Tester]")
+  pygame.display.set_caption("OCR Perceptron [Perceptron Tester (Multilayer)]")
 
   closed = False
   fps = pygame.time.Clock()
@@ -19,10 +19,8 @@ if __name__ == "__main__":
   textLabels = {"InputFile" : TextBoxInput(40, 40, 300, 32, "Fonts/arial.ttf", "Nombre de archivo", 25),
                 "PredictBox": TextBoxInput(420, 250, 50, 32, "Fonts/arial.ttf", "<?>", 1)}
 
-  binaryStep = lambda x : 1 if x > 0 else 0
-
-  neuralNet = PerceptronLayer(48, 2, binaryStep, 0.5)
-  neuralNet.overrideNewNN()
+  neuralNet = NeuralNet([1,2,1], 1, "tanh", 0.5)
+  neuralNet.reset()
 
   while not closed:
     for event in pygame.event.get():
@@ -50,7 +48,10 @@ if __name__ == "__main__":
 
     if textLabels["PredictBox"].getReturnPressed():
       if textLabels["PredictBox"].getInputText() == "?":
-        textLabels["PredictBox"].editableLabel = ":[Es un " + str(vec2Num(neuralNet.calculate(bitMatrix.getInput()))) + "]"
+        raw_prediction = neuralNet.predict(bitMatrix.getInput())
+        prediction = str(convertInUnderstandableOutput(raw_prediction))
+        print(raw_prediction)
+        textLabels["PredictBox"].editableLabel = ":[Es un " + prediction + "]"
     pygame.display.flip()
     fps.tick(30)
   pygame.quit()

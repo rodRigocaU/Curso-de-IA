@@ -1,14 +1,16 @@
-from NN.Perceptron import PerceptronLayer
+from NN.MultiLayerPerceptron import NeuralNet
+from NN.MultiLayerPerceptron import ACTIVATION
 import json
 import glob
 import os
+import numpy as np
 
 def help(NN):
-  print("train: Train Perceptron with data from DATA/ folder")
-  print("init : Initialize Perceptron")
-  print("reset: Reset Perceptron to default values")
-  print("load : Load Perceptron from file")
-  print("save : Save Perceptron on file")
+  print("train: Train Multilayer Perceptron with data from DATA/ folder")
+  print("init : Initialize Multilayer Perceptron")
+  print("reset: Reset Multilayer Perceptron to default values")
+  print("load : Load Multilayer Perceptron from file")
+  print("save : Save Multilayer Perceptron on file")
   print("help : Shows his message")
   return NN
 
@@ -22,47 +24,53 @@ def trainPerceptron(NN):
     for file in dataFiles:
       with open(file, 'r') as jsonNNSource:
         data = json.load(jsonNNSource)
-        if data["Dimensionality"] == NN.WeightInputs - 1:
+        if data["Dimensionality"] == NN.inputLayerSize:
           inputs.append(data["InputList"])
-          outputs.append(int(data["Output"]))
+          outputs.append([float(data["Output"]) * 0.1])
         else:
           continue
     print("\t>> [Data successfully loaded from DATA/ folder...] ->", len(outputs),"files accepted.")
     iterations = int(input("\t>> #Iterations(LIMIT): "))
-    NN.train(inputs, outputs, iterations)
+    NN.train(np.array(inputs), np.array(outputs), iterations)
     print(">> Training finished")
   else:
     print(">> ERROR: The folder \"DATA/\" is empty(no json file found).")
   return NN
 
 def initPerceptron(NN):
-  binaryStep = lambda x : 1 if x > 0 else 0
-  params = int(input("\t>> #Parameters: "))
-  neurons = int(input("\t>> #Neurons: "))
+  arch = []
+  nLayers = int(input("\t>> #Layers: "))
+  for layer in range(nLayers):
+    neurons = int(input("\t>> #Neurons in layer#" + str(layer) + " -> "))
+    arch.append(neurons)
+  params = int(input("\t>> #Parameters in First Layer: "))
   lRatio = float(input("\t>> Learning Ratio: "))
-  NN = PerceptronLayer(params, neurons, binaryStep, lRatio)
-  NN.overrideNewNN()
+  activation = input("\t>> Activation function: ")
+  if(activation in ACTIVATION):
+    NN = NeuralNet(arch, params, activation, lRatio)
+    NN.reset()
+  else:
+    print("ERROR: That activation function id is not supported")
   return NN
 
 def resetPerceptron(NN):
-  NN.overrideNewNN()
-  print(">> Current Perceptron set on default parameters.")
+  NN.reset()
+  print(">> Current M. Perceptron set on default parameters.")
   return NN
 
 def loadPerceptron(NN):
-  name = input("\t>> Name of Perceptron Weights(JSON) file: ")
+  name = input("\t>> Name of M. Perceptron Info(JSON) file: ")
   print(">> Successful loading")if NN.loadFromFile("SavedPerceptrons/" + name + ".json") else print(">> ERROR: The file doesn\'t exist.")
   return NN
 
 def savePerceptron(NN):
   name = input("\t>> Name of file: ")
-  print(">> File: ", name + ".json", "saved on", "SavedPerceptrons/") if NN.saveOnFile("SavedPerceptrons/" + name + ".json") else print(">> ERROR: The perceptron hasn\'t been initialized.")
+  print(">> File: ", name + ".json", "saved on", "SavedPerceptrons/") if NN.saveOnFile("SavedPerceptrons/" + name + ".json") else print(">> ERROR: The M. perceptron hasn\'t been initialized.")
   return NN
 
 if __name__ == "__main__":
-  binaryStep = lambda x : 1 if x > 0 else 0
 
-  neuralNet = PerceptronLayer(48, 10, binaryStep, 0.03)
+  neuralNet = NeuralNet([1,2,1], 1, "tanh", 0.5)
 
   controlPanel = {"train": trainPerceptron,
                   "init" : initPerceptron,
