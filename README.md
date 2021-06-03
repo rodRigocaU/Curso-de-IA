@@ -16,3 +16,5 @@ Este repositorio contiene los trabajos de desarrollo en grupo dejados en clase d
    └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20002%20-%20Checkers%20with%20MinMax)
 3. Algoritmos Genéticos (Maximizador) - 18/04/2021.\
    └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20003%20-%20GeneticAlgorithms)
+4. Perceptrón simple y multicapa para reconocer caracteres - 29/05/2021.\
+   └» [Link a la carpeta](https://github.com/rodRigocaU/Curso-de-IA/tree/main/Tarea%20004%20-%20Perceptron%20OCR%20for%20Digits)
