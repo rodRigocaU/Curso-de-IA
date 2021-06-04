@@ -25,3 +25,11 @@ entrenar a una red neuronal y testing de una red neuronal para el reconocimiento
 - `python trainer.py`
 - ### Ejecucion del tester
 - `python tester.py`
+
+![Ejemplo3](img/0.png)
+## Dataset
+![Ejemplo3](img/1.png)
+## Testing
+![Ejemplo3](img/2.png)
+
+![Ejemplo3](img/3.png)
