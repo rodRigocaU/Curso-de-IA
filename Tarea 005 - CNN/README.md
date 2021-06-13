@@ -9,10 +9,9 @@
 - Italo Mamani Huaricallo
 - Rodrigo Andre Cayro Cuadros
 
-- ### matriz de confusion
-- `python tester.py`
+- ### Matriz de confusion
 
-![Ejemplo3](img/matrix.png)
+![Ejemplo3](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20005%20-%20CNN/img/matrix.PNG)
 ## Dataset
 ![Ejemplo3](img/1.png)
 ## Testing
