@@ -1,5 +1,7 @@
 # Real-time document scanner
 
+PROYECT
+![0_r](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20006%20-Proyecto-Final/img/io.jpg)
 
 ![1 r](https://github.com/yerson001/Document-Scanner/blob/main/img/Screenshot%20from%202021-06-17%2000-26-35.png)
 
