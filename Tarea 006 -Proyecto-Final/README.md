@@ -1,4 +1,4 @@
-# Document Scanner Real time
+# Real-time document scanner
 
 
 ![1 r](https://github.com/yerson001/Document-Scanner/blob/main/img/Screenshot%20from%202021-06-17%2000-26-35.png)
