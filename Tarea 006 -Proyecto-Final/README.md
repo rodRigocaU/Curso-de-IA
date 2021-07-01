@@ -1,7 +1,7 @@
 # Real-time document scanner
 
 ## Requerimientos:
-- pytesseract
+- pytesseract 0.3.7
 - opencv 4.5.2
 - https://github.com/tesseract-ocr/tesseract
 
