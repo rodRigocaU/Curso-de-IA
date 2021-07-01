@@ -3,7 +3,7 @@
 ## Requerimientos:
 - pytesseract 0.3.7
 - opencv 4.5.2
-- https://github.com/tesseract-ocr/tesseract
+- tesseract-orc: https://github.com/tesseract-ocr/tesseract
 
 PROYECT
 ![0_r](https://github.com/rodRigocaU/Curso-de-IA/blob/main/Tarea%20006%20-Proyecto-Final/img/io.jpg)
